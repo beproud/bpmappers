@@ -1,0 +1,16 @@
+syntax: glob
+*.orig
+*.rej
+*~
+*.bak
+*.marks
+*.o
+*.pyc
+*.swp
+
+syntax: regexp
+.*\#.*\#$
+^docs/.*/build/
+^bpmappers.egg-info/
+^build/
+^dist/
