@@ -9,7 +9,7 @@ setup (
     description='Model to dictionary mapping for Python',
     author='K.K. BeProud',
     author_email='tokibito@gmail.com',
-    url='https://www.beproud.jp/',
+    url='http://www.beproud.jp/',
     classifiers=[
       'Development Status :: 3 - Alpha',
       'Environment :: Plugins',
