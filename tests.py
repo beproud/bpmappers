@@ -364,19 +364,19 @@ from django.conf import global_settings
 global_settings.INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    APP_LABEL,
+    #APP_LABEL,
 )
 global_settings.DATABASE_ENGINE = "sqlite3"
 global_settings.DATABASE_NAME = ":memory:"
 
 from django.core.management import sql
-from django.db import models, connection
 
 from django.core.management.color import no_style
 STYLE = no_style()
 
 def create_table(*models):
     """ Create all tables for the given models """
+    from django.db import connection
     cursor = connection.cursor()
     def execute(statements):
         for statement in statements:
@@ -421,7 +421,7 @@ class TagModel(models.Model):
 
 class TaggedItemModel(models.Model):
     name = models.CharField(max_length=20)
-    tags = models.ManyToManyField(TagModel, blank=True)
+    tags = models.ManyToManyField(TagModel, blank=True, auto_created=True)
 
     class Meta:
         app_label = APP_LABEL
@@ -481,6 +481,8 @@ class FlagModelMapper(ModelMapper):
 class DjangoModelMappersTestCase(unittest.TestCase):
 
     def setUp(self):
+        import sys
+        sys.modules['tests.models'] = None
         from django.core import management
         management.call_command('syncdb', verbosity=1, interactive=False)
 
