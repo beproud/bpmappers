@@ -112,12 +112,32 @@ class Mapper(object):
                         v = getattr(self, filter_name)()
                     else:
                         v = getattr(self, filter_name)(v)
-                parsed[name] = field.get_value(v)
+                value = field.get_value(v)
+                # after filter hook
                 after_filter_name = 'after_filter_%s' % name
                 if hasattr(self, after_filter_name):
-                    parsed[name] = getattr(self, after_filter_name)(parsed[name])
-        parsed.keyOrder = self._meta.field_names
+                    value = getattr(self, after_filter_name)(value)
+                # attach hook
+                attach_name = 'attach_%s' % name
+                if hasattr(self, attach_name):
+                    getattr(self, attach_name)(parsed, value)
+                else:
+                    parsed[name] = value
+        self.order(parsed)
         return parsed
+
+    def order(self, parsed):
+        def _cmp(x, y):
+            if x in self._meta.field_names:
+                x_pos = self._meta.field_names.index(x)
+            else:
+                x_pos = -1
+            if y in self._meta.field_names:
+                y_pos = self._meta.field_names.index(y)
+            else:
+                y_pos = -1
+            return cmp(x_pos, y_pos)
+        parsed.keyOrder = sorted(parsed.keyOrder, cmp=_cmp)
 
     def __unicode__(self):
         return unicode(self.as_dict())

@@ -7,14 +7,18 @@ from django.db import models
 class MetaModelError(Exception):
     "Invalid mapper Meta"
 
+DEFAULT_MAPPER_FIELD = RawField
+
 # Djangoのフィールドに対応したMapperField
 DEFINED_MODEL_MAPPER_FIELDS = {
-    models.AutoField: RawField,
-    models.CharField: RawField,
-    models.TextField: RawField,
-    models.IntegerField: RawField,
-    models.DateTimeField: RawField,
-    models.BooleanField: RawField,
+    models.AutoField: DEFAULT_MAPPER_FIELD,
+    models.CharField: DEFAULT_MAPPER_FIELD,
+    models.TextField: DEFAULT_MAPPER_FIELD,
+    models.IntegerField: DEFAULT_MAPPER_FIELD,
+    models.DateTimeField: DEFAULT_MAPPER_FIELD,
+    models.DateField: DEFAULT_MAPPER_FIELD,
+    models.TimeField: DEFAULT_MAPPER_FIELD,
+    models.BooleanField: DEFAULT_MAPPER_FIELD,
 }
 
 def create_model_mapper(model_class, model_fields=None, model_exclude=None):
@@ -56,11 +60,10 @@ class ModelMapperMetaclass(BaseMapper):
                     if not mapper_meta.exclude is None and model_field.name in mapper_meta.exclude:
                         continue
                 # モデルのフィールドに対応したField追加
-                for defined_field in DEFINED_MODEL_MAPPER_FIELDS:
-                    if isinstance(model_field, defined_field):
-                        mapper_field = DEFINED_MODEL_MAPPER_FIELDS[defined_field]
-                        opt.add_field(model_field.name, mapper_field(key=model_field.name))
                 if model_field.rel:
+                    # 同じモデルを参照しようとした場合はスキップする
+                    if model == model_field.rel.to:
+                        continue
                     if isinstance(model_field, models.ForeignKey):
                         # ForeignKey
                         related_model_mapper = create_model_mapper(model_field.rel.to)
@@ -69,6 +72,13 @@ class ModelMapperMetaclass(BaseMapper):
                         # ManyToManyField
                         related_model_mapper = create_model_mapper(model_field.rel.to)
                         opt.add_field(model_field.name, ListDelegateField(related_model_mapper, key=model_field.name, filter=lambda manager:manager.all()))
+                else:
+                    for defined_field in DEFINED_MODEL_MAPPER_FIELDS:
+                        if isinstance(model_field, defined_field):
+                            mapper_field = DEFINED_MODEL_MAPPER_FIELDS[defined_field]
+                            opt.add_field(model_field.name, mapper_field(key=model_field.name))
+                    else:
+                        opt.add_field(model_field.name, DEFAULT_MAPPER_FIELD(key=model_field.name))
         attrs['_meta'] = opt
         return BaseMapper.__new__(cls, name, bases, attrs)
 

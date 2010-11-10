@@ -438,6 +438,28 @@ class FlagModel(models.Model):
     class Meta:
         app_label = APP_LABEL
 
+class RecursionModel(models.Model):
+    recursion = models.ForeignKey('RecursionModel')
+
+    class Meta:
+        app_label = APP_LABEL
+
+class DateAndTimeModel(models.Model):
+    start_date = models.DateField()
+    start_time = models.TimeField()
+
+    class Meta:
+        app_label = APP_LABEL
+
+class MyField(models.Field):
+    pass
+
+class UnknownFieldModel(models.Model):
+    myfield = MyField(max_length=20)
+
+    class Meta:
+        app_label = APP_LABEL
+
 # djangomodelmapper
 class PersonModelMapper(ModelMapper):
     class Meta:
@@ -476,6 +498,23 @@ class TaggedItemModelMapper(ModelMapper):
 class FlagModelMapper(ModelMapper):
     class Meta:
         model = FlagModel
+
+class DateAndTimeModelMapper(ModelMapper):
+    class Meta:
+        model = DateAndTimeModel
+
+class UnknownFieldModelMapper(ModelMapper):
+    class Meta:
+        model = UnknownFieldModel
+
+class BookModelExFlattenMapper(BookModelExMapper):
+    author = DelegateField(PersonExModelMapper)
+
+    class Meta(BookModelExMapper.Meta):
+        pass
+
+    def attach_author(self, parsed, value):
+        parsed.update(value)
 
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
@@ -664,6 +703,60 @@ class DjangoModelMappersTestCase(unittest.TestCase):
             }
         )
 
+    def test_create_recursion_model_mapper(self):
+        """
+        create recursion relation model
+        """
+        class RecursionModelMapper(ModelMapper):
+            class Meta:
+                model = RecursionModel
+        mapper = RecursionModelMapper(RecursionModel(id=1))
+        self.assertEqual(mapper.as_dict(), {'id': 1})
+
+    def test_date_and_time_model_mapper(self):
+        """
+        date and time field model
+        """
+        import datetime
+        obj = DateAndTimeModel(id=1, start_date=datetime.date(2020, 4, 1), start_time=datetime.time(10, 10))
+        mapper = DateAndTimeModelMapper(obj)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': 1,
+                'start_date': datetime.date(2020, 4, 1),
+                'start_time': datetime.time(10, 10),
+            }
+        )
+
+    def test_unknown_field_model_mapper(self):
+        """
+        unknown field model
+        """
+        obj = UnknownFieldModel(id=1, myfield = 'unknown')
+        mapper = UnknownFieldModelMapper(obj)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': 1,
+                'myfield': 'unknown',
+            }
+        )
+
+    def test_flatten_delegate_mapper(self):
+        """
+        flatten delegate field
+        """
+        mapper = BookModelExFlattenMapper(self.wozo_book_ex)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': self.wozozo_ex.id,
+                'title': self.wozo_book.title,
+                'name': self.wozozo_ex.name,
+                'spam': self.wozozo_ex.spam,
+            }
+        )
 
 if __name__ == '__main__':
     unittest.main()
