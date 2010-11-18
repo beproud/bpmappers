@@ -12,6 +12,7 @@ bpmappers ドキュメント
    :maxdepth: 2
 
    intro
+   install
    usage
    reference
 
