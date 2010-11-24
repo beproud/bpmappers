@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8
+# -*- coding: utf-8 -*-
 from bpmappers.fields import RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
 
@@ -48,8 +48,6 @@ class ModelMapperMetaclass(BaseMapper):
             # Meta.modelが無い場合はエラー
             if model is None:
                 raise MetaModelError
-            #if name=='TaggedItemModelMapper':
-            #    import pdb;pdb.set_trace()
             for model_field in model._meta.fields + model._meta.many_to_many:
                 # Meta.fields
                 if hasattr(mapper_meta, 'fields'):

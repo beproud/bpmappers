@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8
+# -*- coding: utf-8 -*-
 from copy import copy
 
 from bpmappers.utils import MultiValueDict, SortedDict

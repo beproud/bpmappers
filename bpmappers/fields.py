@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8
+# -*- coding: utf-8 -*-
 class BaseField(object):
     def __init__(self, callback=None, after_callback=None, *args, **kwargs):
         self.key = None

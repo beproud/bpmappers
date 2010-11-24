@@ -28,7 +28,7 @@ bpmappersは、Pythonのオブジェクトなどの値を別の辞書へマッ�
        return {
             'name': team.name,
             'point': team.point,
-            'persons': [_map_person(p) for p in team.persons],
+            'persons': [_map_person(p) for p in team.persons.all()],
        }
    
    def response_json(request):
@@ -53,7 +53,7 @@ bpmappersは、Pythonのオブジェクトなどの値を別の辞書へマッ�
        return {
             'name': team.name,
             'point': team.point,
-            'persons': [_map_person(p) for p in team.persons],
+            'persons': [_map_person(p) for p in team.persons.all()],
        }
    
    def _map_person_only_name(person):
@@ -66,7 +66,7 @@ bpmappersは、Pythonのオブジェクトなどの値を別の辞書へマッ�
        " teamオブジェクトのマッピング(名前のみ) "
        return {
             'name': team.name,
-            'persons': [_map_person_only_name(p) for p in team.persons],
+            'persons': [_map_person_only_name(p) for p in team.persons.all()],
        }
    
    def response_json(request):
@@ -100,12 +100,12 @@ bpmappers を使用すると先ほどのコードは次のようになります�
    class TeamPersonNameMapper(Mapper):
        " teamオブジェクトのマッピング(名前のみ) "
        name = RawField()
-       persons = ListDelegateField(PersonNameMapper)
+       persons = ListDelegateField(PersonNameMapper, filter=lambda manager:manager.all())
 
    class TeamMapper(TeamPersonNameMapper):
        " teamオブジェクトのマッピング "
        point = RawField()
-       persons = ListDelegateField(PersonMapper)
+       persons = ListDelegateField(PersonMapper, filter=lambda manager:manager.all())
 
    def response_json(request):
        team = Team.objects.get(pk=1)
