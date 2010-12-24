@@ -7,58 +7,97 @@
 class Mapper
 ============
 
-__init__
-~~~~~~~~
+.. class:: Mapper(data=None, \*\*options)
 
 :data: マッピング元のオブジェクト(デフォルト値: None).
 :\*\*options: オプション引数(デフォルト値: なし)
 
-as_dict
-~~~~~~~~
+.. method:: Mapper.as_dict()
 
-引数なし。マッピングした辞書を返します。
+マッピングした順序付き辞書(SortedDict)を返します。
 
-filter_FOO
-~~~~~~~~~~
+.. method:: Mapper.filter_FOO(value)
 
-引数なし。FOOにはフィールド名を指定します。
+FOOにはフィールド名を指定します。
 
-filter_FOOメソッドは、オブジェクトから取り出してデータを評価したあとに実行されます。
+オブジェクトから取り出してデータを評価したあとに実行されます。
 
-after_filter_FOO
-~~~~~~~~~~~~~~~~
+フィールドが NonKeyField の場合、引数なしで呼び出されます。
+
+.. method:: Mapper.after_filter_FOO(value)
+
+FOOにはフィールド名を指定します。
+
+Field.get_value のあとに実行されます。
+
+.. method:: Mapper.attach_FOO(parsed, value)
+
+:parsed: 変換済みのフィールド名-値の辞書
+:value: 変換済みの値
+
+FOOにはフィールド名を指定します。
+
+このメソッドを記述した場合、マッピング結果の辞書への値の追加は自前の処理で行う必要があります。
+
+.. method:: Mapper.order(parsed)
+
+:parsed: 変換済みのフィールド名-値の辞書
+
+as_dictの最後に呼ばれます。順序付き辞書のソート順を変更する場合にオーバーライドします。
 
 class ModelMapper
 =================
 
-__init__
-~~~~~~~~
-
-Mapperクラスと同様です。
-
-as_dict
-~~~~~~~
+.. class:: ModelMapper(data=None, \*\*options)
 
 Mapperクラスと同様です。
 
 class NonKeyField
 =================
 
+.. class:: NonKeyField([callback=None, after_callback=None, \*args, \*\*kwargs])
+
+マッピング対象のdataにキーがない場合に使用します。
+
 class Field
 ===========
+
+.. class:: Field([key=None, callback=None, \*args, \*\*kwargs])
+
+キーを持つフィールドのクラス。通常は継承して使用します。
 
 class RawField
 ==============
 
+.. class:: RawField([key=None, callback=None, \*args, \*\*kwargs])
+
+マッピング対象のdataに対してキーで取得した内容をそのまま返すフィールドです。
+
 class ChoiceField
 =================
+
+.. class:: ChoiceField(choices, [key=None, callback=None, \*args, \*\*kwargs])
 
 class DelegateField
 ===================
 
+.. class:: DelegateField(mapper_class, [key=None, callback=None, before_filter=None, required=True, \*args, \*\*kwargs])
+
+.. method:: DelegateField.before_filiter(value)
+
 class ListDelegateField
 =======================
 
+.. class:: ListDelegateField(mapper_class, [key=None, callback=None, filter=None, after_filter=None, \*args, \*\*kwargs])
+
+.. method:: ListDelegateField.filter(value)
+
+.. method:: ListDelegateField.after_filter(value)
+
 class NonKeyListDelegateField
 =============================
+
+.. class:: NonKeyListDelegateField(mapper_class, [callback=None, \*args, \*\*kwargs])
+
+.. method:: NonKeyListDelegateField.filter(value=None)
 

@@ -2,6 +2,7 @@
 from bpmappers.fields import RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 class MetaModelError(Exception):
@@ -86,4 +87,11 @@ class ModelMapper(Mapper):
     """
     __metaclass__ = ModelMapperMetaclass
 
-
+    def _getattr(self, obj, key):
+        """
+        空のFKの要素にアクセスした場合の対処
+        """
+        try:
+            return super(ModelMapper, self)._getattr(obj, key)
+        except ObjectDoesNotExist:
+            return None
