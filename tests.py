@@ -32,6 +32,12 @@ class PersonInherit3(PersonMapper):
     def filter_xxx(self):
         return self.options['foo']
 
+class PersonMapper2(Mapper):
+    nick = NonKeyField()
+
+    def filter_nick(self):
+        return self.options['author_name']
+
 # mapper
 class PersonMapper(Mapper):
     nick = RawField('name')
@@ -65,6 +71,18 @@ class BookMapper5(Mapper):
 
     def after_filter_title(self, value):
         return 'wozo_%s' % value
+
+class BookMapper6(Mapper):
+    title = RawField()
+    author = DelegateField(PersonMapper, required=False)
+
+class BookMapper7(Mapper):
+    title = RawField()
+    author = DelegateField(PersonMapper2)
+
+class BookFlattenMapper(Mapper):
+    title = RawField()
+    author = DelegateField(PersonMapper, attach_parent=True)
 
 class ReverseAuthorBookMapper(BookMapper):
 
@@ -104,23 +122,23 @@ class FieldsTestCase(unittest.TestCase):
         RawField
         """
         f = RawField('name')
-        self.assertEqual(f.get_value(123), 123)
-        self.assertEqual(f.get_value('foo'), 'foo')
+        self.assertEqual(f.get_value(None, 123), 123)
+        self.assertEqual(f.get_value(None, 'foo'), 'foo')
 
     def test_raw_field_callback(self):
         """
         RawField with callback
         """
         f = RawField('name', callback=lambda x:x * x)
-        self.assertEqual(f.get_value(10), 100)
+        self.assertEqual(f.get_value(None, 10), 100)
 
     def test_choice_field(self):
         """
         ChoiceField
         """
         f = ChoiceField(['feiz', 'ian'])
-        self.assertEqual(f.as_value(0), 'feiz')
-        self.assertEqual(f.as_value(1), 'ian')
+        self.assertEqual(f.as_value(None, 0), 'feiz')
+        self.assertEqual(f.as_value(None, 1), 'ian')
 
 class MappersTestCase(unittest.TestCase):
 
@@ -173,6 +191,19 @@ class MappersTestCase(unittest.TestCase):
                      'nick': 'ozozow',
                      'point': self.wozozo.val
                  }
+            })
+
+    def test_delegate_none_value(self):
+        """
+        when value is None
+        """
+        book = Book('wozo_book', None)
+        mapper = BookMapper6(book)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'title': book.title,
+                'author': None,
             })
 
     def test_list_delegate(self):
@@ -284,6 +315,20 @@ class MappersTestCase(unittest.TestCase):
                  }
             })
 
+    def test_options_and_delegate_field(self):
+        """
+        mapper options and delegate field
+        """
+        mapper = BookMapper7(self.wozo_book, author_name='moriyoshi')
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'title': self.wozo_book.title,
+                'author': {
+                    'nick': 'moriyoshi',
+                }
+            })
+
     def test_non_key_delegate(self):
         """
         mapper non key delegate field
@@ -297,6 +342,19 @@ class MappersTestCase(unittest.TestCase):
                      'nick': 'moriyoshi',
                      'point': 100,
                  }
+            })
+
+    def test_delegate_field_attach_parent(self):
+        """
+        attach_parent delegate field 
+        """
+        mapper = BookFlattenMapper(self.wozo_book)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'title': 'wozo_book',
+                'nick': 'wozozo',
+                'point': 10,
             })
 
     def test_non_key_list_delegate(self):
@@ -481,6 +539,12 @@ class BookModelMapper(ModelMapper):
     class Meta:
         model = BookModel
 
+class BookModelMapper2(ModelMapper):
+    author = DelegateField(PersonModelMapper, required=False)
+
+    class Meta:
+        model = BookModel
+
 class BookModelExMapper(ModelMapper):
     author = DelegateField(PersonExModelMapper)
 
@@ -627,6 +691,20 @@ class DjangoModelMappersTestCase(unittest.TestCase):
                 }
             }
         )
+
+    def test_related_none_value(self):
+        """
+        when value is None
+        """
+        book = BookModel(id=1, title='wozo_book')
+        mapper = BookModelMapper2(book)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': book.id,
+                'title': book.title,
+                'author': None,
+            })
 
     def test_model_mapper_custom_field(self):
         """

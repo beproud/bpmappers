@@ -66,7 +66,7 @@ class Mapper(object):
 
     def __init__(self, data=None, **options):
         self.data = data
-        self.options = self.default_options
+        self.options = self.default_options.copy()
         self.options.update(options)
 
     def _getattr(self, obj, key):
@@ -112,7 +112,7 @@ class Mapper(object):
                         v = getattr(self, filter_name)()
                     else:
                         v = getattr(self, filter_name)(v)
-                value = field.get_value(v)
+                value = field.get_value(self, v)
                 # after filter hook
                 after_filter_name = 'after_filter_%s' % name
                 if hasattr(self, after_filter_name):
@@ -122,7 +122,11 @@ class Mapper(object):
                 if hasattr(self, attach_name):
                     getattr(self, attach_name)(parsed, value)
                 else:
-                    parsed[name] = value
+                    attach_parent = getattr(field, 'attach_parent', False)
+                    if attach_parent:
+                        parsed.update(value)
+                    else:
+                        parsed[name] = value
         self.order(parsed)
         return parsed
 

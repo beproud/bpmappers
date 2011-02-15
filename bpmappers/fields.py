@@ -16,10 +16,10 @@ class BaseField(object):
             return value
         return self._after_callback(value)
 
-    def get_value(self, value):
-        return self.after_callback_value(self.as_value(self.callback_value(value)))
+    def get_value(self, mapper, value):
+        return self.after_callback_value(self.as_value(mapper, self.callback_value(value)))
 
-    def as_value(self, value):
+    def as_value(self, mapper, value):
         raise NotImplementedError
 
     @property
@@ -27,7 +27,7 @@ class BaseField(object):
         raise NotImplementedError
 
 class NonKeyField(BaseField):
-    def as_value(self, value=None):
+    def as_value(self, mapper, value=None):
         return value
 
     @property
@@ -44,7 +44,7 @@ class Field(BaseField):
         return False
 
 class RawField(Field):
-    def as_value(self, value):
+    def as_value(self, mapper, value):
         return value
 
 class ChoiceField(Field):
@@ -52,7 +52,7 @@ class ChoiceField(Field):
         super(ChoiceField, self).__init__(key, callback, *args, **kwargs)
         self.choices = choices
 
-    def as_value(self, value):
+    def as_value(self, mapper, value):
         # TODO:イテレータに対応する
         return self.choices[value]
 
@@ -60,23 +60,24 @@ class DelegateField(Field):
     """
     指定したMapperにデリゲートするフィールド
     """
-    def __init__(self, mapper_class, key=None, callback=None, before_filter=None, required=True, *args, **kwargs):
+    def __init__(self, mapper_class, key=None, callback=None, before_filter=None, required=True, attach_parent=False, *args, **kwargs):
         super(DelegateField, self).__init__(key, callback, *args, **kwargs)
         self._before_filter = before_filter
         self.mapper_class = mapper_class
         self.required = required
+        self.attach_parent = attach_parent
 
     def before_filter(self, value):
         if self._before_filter:
             return self._before_filter(value)
         return value
 
-    def as_value(self, value):
+    def as_value(self, mapper, value):
         val = self.before_filter(value)
         if val is None:
             if not self.required:
                 return
-        return self.mapper_class(val).as_dict()
+        return self.mapper_class(val, **mapper.options).as_dict()
 
 class ListDelegateField(DelegateField):
     """
@@ -97,7 +98,7 @@ class ListDelegateField(DelegateField):
             return self._after_filter(value)
         return value
 
-    def as_value(self, value):
+    def as_value(self, mapper, value):
         parsed = []
         # filterは割り込み用
         value = self.filter(value)
@@ -106,16 +107,17 @@ class ListDelegateField(DelegateField):
                 return
         # TODO:イテレータを返す方が良い？
         for v in value:
-            parsed.append(self.after_filter(super(ListDelegateField, self).as_value(self.callback_value(v))))
+            parsed.append(self.after_filter(super(ListDelegateField, self).as_value(mapper, self.callback_value(v))))
         return parsed
 
 class NonKeyDelegateField(NonKeyField):
-    def __init__(self, mapper_class, callback=None, *args, **kwargs):
+    def __init__(self, mapper_class, callback=None, attach_parent=False, *args, **kwargs):
         super(NonKeyDelegateField, self).__init__(callback, *args, **kwargs)
         self.mapper_class = mapper_class
+        self.attach_parent = attach_parent
 
-    def as_value(self, value=None):
-        return self.mapper_class(value).as_dict()
+    def as_value(self, mapper, value=None):
+        return self.mapper_class(value, **mapper.options).as_dict()
 
 class NonKeyListDelegateField(NonKeyDelegateField):
     def __init__(self, mapper_class, callback=None, filter=None, *args, **kwargs):
@@ -127,10 +129,10 @@ class NonKeyListDelegateField(NonKeyDelegateField):
             return self._filter(value)
         return value
 
-    def as_value(self, value=[]):
+    def as_value(self, mapper, value=[]):
         parsed = []
         # filterは割り込み用
         value = self.filter(value)
         for v in value:
-            parsed.append(super(NonKeyListDelegateField, self).as_value(self.callback_value(v)))
+            parsed.append(super(NonKeyListDelegateField, self).as_value(mapper, self.callback_value(v)))
         return parsed
