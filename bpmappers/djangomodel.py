@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from bpmappers.fields import RawField, DelegateField, ListDelegateField
+from bpmappers.fields import Field, RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,6 +7,10 @@ from django.db import models
 
 class MetaModelError(Exception):
     "Invalid mapper Meta"
+
+class DjangoFileField(Field):
+    def as_value(self, mapper, value):
+        return value and value.url or None
 
 DEFAULT_MAPPER_FIELD = RawField
 
@@ -20,6 +24,7 @@ DEFINED_MODEL_MAPPER_FIELDS = {
     models.DateField: DEFAULT_MAPPER_FIELD,
     models.TimeField: DEFAULT_MAPPER_FIELD,
     models.BooleanField: DEFAULT_MAPPER_FIELD,
+    models.FileField: DjangoFileField,
 }
 
 def create_model_mapper(model_class, model_fields=None, model_exclude=None):

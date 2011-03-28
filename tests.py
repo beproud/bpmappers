@@ -525,7 +525,14 @@ class UnknownFieldModel(models.Model):
     class Meta:
         app_label = APP_LABEL
 
-# djangomodelmapper
+class FileFieldModel(models.Model):
+    myfile = models.FileField(upload_to='./')
+    myimage = models.ImageField(upload_to='./')
+
+    class Meta:
+        app_label = APP_LABEL
+
+#djangomodelmapper
 class PersonModelMapper(ModelMapper):
     class Meta:
         model = PersonModel
@@ -586,6 +593,10 @@ class BookModelExFlattenMapper(BookModelExMapper):
 
     def attach_author(self, parsed, value):
         parsed.update(value)
+
+class FileFieldModelMapper(ModelMapper):
+    class Meta:
+        model = FileFieldModel
 
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
@@ -840,6 +851,24 @@ class DjangoModelMappersTestCase(unittest.TestCase):
                 'title': self.wozo_book.title,
                 'name': self.wozozo_ex.name,
                 'spam': self.wozozo_ex.spam,
+            }
+        )
+
+    def test_file_field_mapper(self):
+        """
+        FileField
+        """
+        obj = FileFieldModel()
+        obj.pk = 1
+        obj.myfile.name = 'test.dat'
+        obj.myimage.name = 'image.dat'
+        mapper = FileFieldModelMapper(obj)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': 1,
+                'myfile': 'test.dat',
+                'myimage': 'image.dat',
             }
         )
 
