@@ -34,6 +34,14 @@ class NonKeyField(BaseField):
     def is_nonkey(self):
         return True
 
+class StubField(NonKeyField):
+    def __init__(self, stub={}, *args, **kwargs):
+        self.stub = stub
+        super(StubField, self).__init__(*args, **kwargs)
+
+    def as_value(self, mapper, value=None):
+        return self.stub
+
 class Field(BaseField):
     def __init__(self, key=None, callback=None, *args, **kwargs):
         super(Field, self).__init__(callback, *args, **kwargs)

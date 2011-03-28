@@ -140,6 +140,13 @@ class FieldsTestCase(unittest.TestCase):
         self.assertEqual(f.as_value(None, 0), 'feiz')
         self.assertEqual(f.as_value(None, 1), 'ian')
 
+    def test_stub_field(self):
+        """
+        StubField
+        """
+        f = StubField('wozozo')
+        self.assertEqual(f.as_value(None), 'wozozo')
+
 class MappersTestCase(unittest.TestCase):
 
     def setUp(self):
