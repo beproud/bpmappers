@@ -18,4 +18,3 @@ bpmappers ドキュメント
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

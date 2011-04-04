@@ -12,7 +12,7 @@ bpmappersは、Pythonのオブジェクトなどの値を別の辞書へマッ�
 
 レスポンスをJSONで返すとき、JSONのデータとモデルが一対一にならないことが頻繁にありました。
 
-例を示します。Personモデルを複数所有するTeamモデルがあったとします。TeamモデルのオブジェクトをJSONで返す `response_json` 関数を次のように書きました。
+例を示します。Personモデルを複数所有するTeamモデルがあったとします。TeamモデルのオブジェクトをJSONで返す ``response_json`` 関数を次のように書きました。
 
 .. code-block:: python
 
@@ -115,7 +115,7 @@ bpmappers を使用すると先ほどのコードは次のようになります�
        team = Team.objects.get(pk=1)
        return HttpResponse(json.dumps(TeamPersonNameMapper(team).as_dict()))
 
-似たようなマッピングは、継承を使って定義しています。リスト内包表記は `ListDelegateField` で置き換えられています。
+似たようなマッピングは、継承を使って定義しています。リスト内包表記は ``ListDelegateField`` で置き換えられています。
 
 また、Mapperクラスにはフックポイントがいくつか用意されているため、後の変更や複雑なマッピングに対しても柔軟に対応できます。
 

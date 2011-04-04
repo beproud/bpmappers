@@ -50,7 +50,7 @@ class ModelMapper
 
 .. class:: ModelMapper(data=None, \*\*options)
 
-Mapperクラスと同様です。
+Djangoモデルクラスからマッピング定義を生成します。
 
 class NonKeyField
 =================
@@ -58,6 +58,13 @@ class NonKeyField
 .. class:: NonKeyField([callback=None, after_callback=None, \*args, \*\*kwargs])
 
 マッピング対象のdataにキーがない場合に使用します。
+
+class StubField
+===============
+
+.. class:: StubField([stub={}, \*args, \*\*kwargs])
+
+stubで指定した固定値を返すフィールドです。
 
 class Field
 ===========
@@ -81,9 +88,14 @@ class ChoiceField
 class DelegateField
 ===================
 
-.. class:: DelegateField(mapper_class, [key=None, callback=None, before_filter=None, required=True, \*args, \*\*kwargs])
+.. class:: DelegateField(mapper_class, [key=None, callback=None, before_filter=None, required=True, attach_parent=False, \*args, \*\*kwargs])
 
 .. method:: DelegateField.before_filiter(value)
+
+class NonKeyDelegateField
+=========================
+
+.. class:: NonKeyDelegateField(mapper_class, [callback=None, filter=None, required=True, attach_parent=False, \*args, \*\*kwargs])
 
 class ListDelegateField
 =======================
