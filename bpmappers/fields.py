@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+
 class BaseField(object):
     def __init__(self, callback=None, after_callback=None, *args, **kwargs):
         self.key = None
@@ -26,6 +28,7 @@ class BaseField(object):
     def is_nonkey(self):
         raise NotImplementedError
 
+
 class NonKeyField(BaseField):
     def as_value(self, mapper, value=None):
         return value
@@ -34,6 +37,7 @@ class NonKeyField(BaseField):
     def is_nonkey(self):
         return True
 
+
 class StubField(NonKeyField):
     def __init__(self, stub={}, *args, **kwargs):
         self.stub = stub
@@ -41,6 +45,7 @@ class StubField(NonKeyField):
 
     def as_value(self, mapper, value=None):
         return self.stub
+
 
 class Field(BaseField):
     def __init__(self, key=None, callback=None, *args, **kwargs):
@@ -51,9 +56,11 @@ class Field(BaseField):
     def is_nonkey(self):
         return False
 
+
 class RawField(Field):
     def as_value(self, mapper, value):
         return value
+
 
 class ChoiceField(Field):
     def __init__(self, choices, key=None, callback=None, *args, **kwargs):
@@ -63,6 +70,7 @@ class ChoiceField(Field):
     def as_value(self, mapper, value):
         # TODO:イテレータに対応する
         return self.choices[value]
+
 
 class DelegateField(Field):
     """
@@ -86,6 +94,7 @@ class DelegateField(Field):
             if not self.required:
                 return
         return self.mapper_class(val, **mapper.options).as_dict()
+
 
 class ListDelegateField(DelegateField):
     """
@@ -118,6 +127,7 @@ class ListDelegateField(DelegateField):
             parsed.append(self.after_filter(super(ListDelegateField, self).as_value(mapper, self.callback_value(v))))
         return parsed
 
+
 class NonKeyDelegateField(NonKeyField):
     def __init__(self, mapper_class, callback=None, attach_parent=False, *args, **kwargs):
         super(NonKeyDelegateField, self).__init__(callback, *args, **kwargs)
@@ -126,6 +136,7 @@ class NonKeyDelegateField(NonKeyField):
 
     def as_value(self, mapper, value=None):
         return self.mapper_class(value, **mapper.options).as_dict()
+
 
 class NonKeyListDelegateField(NonKeyDelegateField):
     def __init__(self, mapper_class, callback=None, filter=None, *args, **kwargs):

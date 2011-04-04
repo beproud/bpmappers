@@ -1,6 +1,7 @@
 class MultiValueDictKeyError(KeyError):
     pass
 
+
 class MultiValueDict(dict):
     """
     A subclass of dictionary customized to handle multiple values for the
@@ -56,7 +57,7 @@ class MultiValueDict(dict):
             dict.__setitem__(result, copy.deepcopy(key, memo),
                              copy.deepcopy(value, memo))
         return result
-    
+
     def __getstate__(self):
         obj_dict = self.__dict__.copy()
         obj_dict['_data'] = dict([(k, self.getlist(k)) for k in self])
@@ -165,6 +166,7 @@ class MultiValueDict(dict):
                     raise ValueError, "MultiValueDict.update() takes either a MultiValueDict or dictionary"
         for key, value in kwargs.iteritems():
             self.setlistdefault(key, []).append(value)
+
 
 class SortedDict(dict):
     """
@@ -279,4 +281,3 @@ class SortedDict(dict):
     def clear(self):
         super(SortedDict, self).clear()
         self.keyOrder = []
-

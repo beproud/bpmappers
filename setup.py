@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
- 
-setup (
+
+setup(
     name='bpmappers',
     version='0.3',
     description='Model to dictionary mapping for Python',
