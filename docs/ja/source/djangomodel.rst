@@ -41,9 +41,11 @@ ModelMapper を使わない場合は次のようになります:
    from bpmappers import Mapper, RawField, DelegateField
 
    class PersonMapper(Mapper):
+       id = RawField()
        name = RawField()
 
    class BookMapper(Mapper):
+       id = RawField()
        title = RawField()
        author = DelegateField(PersonMapper)
 
