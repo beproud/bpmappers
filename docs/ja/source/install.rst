@@ -12,6 +12,6 @@
 開発版リポジトリ
 ----------------
 
-開発版のソースコードは `Mercurial` で管理されています。
+開発版のソースコードは `Mercurial` で管理され、 bitbucket.org でホストされています。
 
-http://bitbucket.org/tokibito/python-bpmappers/
+https://bitbucket.org/tokibito/python-bpmappers/

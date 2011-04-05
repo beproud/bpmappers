@@ -10,6 +10,7 @@ bpmappers ドキュメント
    install
    usage
    flatten
+   djangomodel
    reference
 
 索引

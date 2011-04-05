@@ -67,7 +67,7 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
    >>> print mapper.as_dict()
    {'name': 'wozozo', 'val': 123}
 
-``bpmappers.djangomodel.ModelMapper`` を継承したクラスを定義し、ModelMapperを継承したクラスには ``Meta`` サブクラスを定義しています。
+``bpmappers.djangomodel.ModelMapper`` を継承したクラスを定義し、ModelMapperを継承したクラスには ``Meta`` インナークラスを定義しています。
 ``Meta.model`` にDjangoのモデルクラスを指定することで、モデルのフィールドから自動的にマッピング定義が生成されます。
 この例では、PersonモデルクラスからPersonMapperクラスを生成しています。
 
