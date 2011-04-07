@@ -302,6 +302,7 @@ Field.after_callback
    #. after_filter_FOO
 
    実行例
+
    .. doctest::
 
       >>> from bpmappers import Mapper, RawField, DelegateField
