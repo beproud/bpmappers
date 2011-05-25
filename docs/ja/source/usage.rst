@@ -189,7 +189,6 @@ Mapper.attach_FOO
 .. doctest::
 
    >>> from bpmappers import Mapper, NonKeyField, RawField
-   >>> 
    >>> class Point(object):
    ...     def __init__(self, x, y):
    ...         self.x = x
@@ -217,12 +216,10 @@ Field.callback
 .. doctest::
 
    >>> from bpmappers import Mapper, RawField, DelegateField
-   >>> 
    >>> class Person(object):
    ...     def __init__(self, name):
    ...        self.name = name
    ... 
-   >>> 
    >>> class PersonInfoMapper(Mapper):
    ...     info = RawField("name", callback = lambda v : "name:%s" % v)
    ... 
@@ -233,11 +230,9 @@ Field.callback
    ...     def filter_info(self, v):
    ...         return v+v
    ... 
-   >>> 
    >>> mapper = PersonInfoMapper(Person("bucho"))
    >>> print mapper.as_dict()
    {'info': 'name:bucho'}
-   >>> 
    >>> mapper = PersonInfoMapper2(Person("bucho"))
    >>> print mapper.as_dict()
    {'info': 'name:buchobucho'}
@@ -250,7 +245,6 @@ Field.after_callback
 .. doctest::
 
    >>> from bpmappers import Mapper, RawField, ListDelegateField
-   >>> 
    >>> class Person(object):
    ...     def __init__(self, name):
    ...         self.name = name
@@ -270,7 +264,6 @@ Field.after_callback
    >>> book = Book("be clound", [Person("bucho"), Person("shacho")])
    >>> print BookMapper(book).as_dict()
    {'authors': [{'author': 'bucho'}, {'author': 'shacho'}], 'title': 'be clound'}
-   >>> 
    >>> def get_vals(items):
    ...     """
    ...     辞書のリストから、値だけを取り出す関数
@@ -306,12 +299,10 @@ Field.after_callback
    .. doctest::
 
       >>> from bpmappers import Mapper, RawField, DelegateField
-      >>> 
       >>> class Person(object):
       ...     def __init__(self, name):
       ...         self.name = name
       ... 
-      >>> 
       >>> class PersonInfoMapper(Mapper):
       ...     info = RawField("name",
       ...                     callback= lambda v :  "( cb: %s )" % v, 
@@ -323,7 +314,6 @@ Field.after_callback
       ...     def after_filter_info(self, v): 
       ...         return "{ after_filter: %s }" % v
       ... 
-      >>> 
       >>> mapper = PersonInfoMapper(Person("BP"))
       >>> print mapper.as_dict()
       {'info': '{ after_filter: [ after_cb: ( cb: < filter: BP > ) ] }'}       

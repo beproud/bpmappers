@@ -5,9 +5,19 @@
 
 インストールは `easy_install` や `pip` コマンドで行えます。
 
+easy_install によるインストール
+-------------------------------
+
 ::
 
   $ sudo easy_install bpmappers
+
+pip によるインストール
+----------------------
+
+::
+
+  $ pip install bpmappers
 
 開発版リポジトリ
 ----------------
