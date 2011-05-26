@@ -126,7 +126,7 @@ class Mapper(object):
                     if attach_parent:
                         parsed.update(value)
                     else:
-                        parsed[name] = value
+                        parsed[self.key_name(name)] = value
         self.order(parsed)
         return parsed
 
@@ -142,6 +142,12 @@ class Mapper(object):
                 y_pos = -1
             return cmp(x_pos, y_pos)
         parsed.keyOrder = sorted(parsed.keyOrder, cmp=_cmp)
+
+    def key_name(self, name):
+        """
+        hook point for key name convert.
+        """
+        return name
 
     def __unicode__(self):
         return unicode(self.as_dict())

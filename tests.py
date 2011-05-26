@@ -115,6 +115,12 @@ class FilteredGroupExMapper(GroupMapper):
     def filter_users(self, lst):
         return [p for p in lst if p.val > self.options['limit']]
 
+class KeyNameConvertMapper(Mapper):
+    name = RawField()
+
+    def key_name(self, name):
+        return 'ns:%s' % name
+
 # testcase
 class FieldsTestCase(unittest.TestCase):
     def test_raw_field(self):
@@ -411,6 +417,14 @@ class MappersTestCase(unittest.TestCase):
                 }
             })
 
+    def test_key_name_convert(self):
+        mapper = KeyNameConvertMapper(self.wozozo)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'ns:name': self.wozozo.name,
+            })
+
 
 # djangomodel mapper
 """
@@ -597,6 +611,13 @@ class BookModelExFlattenMapper(BookModelExMapper):
 class FileFieldModelMapper(ModelMapper):
     class Meta:
         model = FileFieldModel
+
+class KeyNameConvertModelMapper(ModelMapper):
+    def key_name(self, name):
+        return 'prefix:%s' % name
+
+    class Meta:
+        model = PersonModel
 
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
@@ -869,6 +890,17 @@ class DjangoModelMappersTestCase(unittest.TestCase):
                 'id': 1,
                 'myfile': 'test.dat',
                 'myimage': 'image.dat',
+            }
+        )
+
+    def test_key_name_convert_model_mapper(self):
+        mapper = KeyNameConvertModelMapper(self.wozozo)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'prefix:id': self.wozozo.id,
+                'prefix:name': self.wozozo.name,
+                'prefix:val': self.wozozo.val
             }
         )
 
