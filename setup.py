@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bpmappers',
-    version='0.4dev',
+    version='0.4',
     description='Model to dictionary mapping for Python',
     author='K.K. BeProud',
     author_email='shinya.okano@beproud.jp',
