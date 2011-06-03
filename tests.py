@@ -118,7 +118,7 @@ class FilteredGroupExMapper(GroupMapper):
 class KeyNameConvertMapper(Mapper):
     name = RawField()
 
-    def key_name(self, name):
+    def key_name(self, name,  value, field):
         return 'ns:%s' % name
 
 # testcase
@@ -613,7 +613,7 @@ class FileFieldModelMapper(ModelMapper):
         model = FileFieldModel
 
 class KeyNameConvertModelMapper(ModelMapper):
-    def key_name(self, name):
+    def key_name(self, name, value, field):
         return 'prefix:%s' % name
 
     class Meta:
