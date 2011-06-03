@@ -472,7 +472,7 @@ def create_table(*models):
 
 #______________________________________________________________________________
 # Your test model classes:
-
+import django
 from django.db import models
 
 from bpmappers.djangomodel import *
@@ -881,8 +881,14 @@ class DjangoModelMappersTestCase(unittest.TestCase):
         """
         obj = FileFieldModel()
         obj.pk = 1
-        obj.myfile.name = 'test.dat'
-        obj.myimage.name = 'image.dat'
+        # django 1.0.x is not able to set name attribute.
+        if django.VERSION < (1, 1):
+            print "hogehogehoge"
+            obj.myfile._name = 'test.dat'
+            obj.myimage._name = 'image.dat'
+        else:
+            obj.myfile.name = 'test.dat'
+            obj.myimage.name = 'image.dat'
         mapper = FileFieldModelMapper(obj)
         self.assertEqual(
             mapper.as_dict(),
