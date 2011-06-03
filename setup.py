@@ -7,7 +7,7 @@ setup(
     description='Model to dictionary mapping for Python',
     author='K.K. BeProud',
     author_email='shinya.okano@beproud.jp',
-    url='http://www.beproud.jp/',
+    url='http://tokibito.bitbucket.org/bpmappers/',
     classifiers=[
       'Development Status :: 3 - Alpha',
       'Environment :: Plugins',
