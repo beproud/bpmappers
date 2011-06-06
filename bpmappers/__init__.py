@@ -7,4 +7,4 @@ __all__ = [
   'NonKeyDelegateField', 'NonKeyListDelegateField', 'Mapper'
 ]
 
-VERSION = (0, 4, 0, None)
+VERSION = (0, 5, 0, 'dev')

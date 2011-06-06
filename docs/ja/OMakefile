@@ -97,9 +97,9 @@ DepBuild( htmlhelp, $'''
 DepBuild( qthelp, $''''
 	Build finished; now you can run "qcollectiongenerator" with the
 	.qhcp project file in $(builddir)/qthelp, like this:
-	# qcollectiongenerator $(builddir)/qthelp/CouchDBtheDefinitiveGuideTranslationtoJapanese.qhcp
+	# qcollectiongenerator $(builddir)/qthelp/bpmappers.qhcp
 	To view the help file:
-	# assistant -collectionFile $(builddir)/qthelp/CouchDBtheDefinitiveGuideTranslationtoJapanese.qhc
+	# assistant -collectionFile $(builddir)/qthelp/bpmappers.qhc
 	'''')
 
 DepBuild( latex, $''''
