@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from bpmappers.exceptions import InvalidDelegateException
 
 class BaseField(object):
     def __init__(self, callback=None, after_callback=None, *args, **kwargs):
@@ -93,6 +94,8 @@ class DelegateField(Field):
         if val is None:
             if not self.required:
                 return
+            # TODO: ここで落ちるので例外処理を考える
+            raise InvalidDelegateException('Invalid delegate "%(key)s" key in %(mapper)s.' % {'key': self.key, 'mapper': mapper})
         return self.mapper_class(val, **mapper.options).as_dict()
 
 

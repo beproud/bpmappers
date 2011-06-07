@@ -546,6 +546,19 @@ class FileFieldModel(models.Model):
     class Meta:
         app_label = APP_LABEL
 
+class FreePersonGroupModel(models.Model):
+    name = models.CharField(max_length=20)
+
+    class Meta:
+        app_label = APP_LABEL
+
+class FreePersonModel(models.Model):
+    name = models.CharField(max_length=20)
+    group = models.ForeignKey(FreePersonGroupModel, blank=True, null=True)
+
+    class Meta:
+        app_label = APP_LABEL
+
 #djangomodelmapper
 class PersonModelMapper(ModelMapper):
     class Meta:
@@ -619,6 +632,16 @@ class KeyNameConvertModelMapper(ModelMapper):
     class Meta:
         model = PersonModel
 
+class FreePersonGroupModelMapper(ModelMapper):
+    class Meta:
+        model = FreePersonGroupModel
+
+class FreePersonModelMapper(ModelMapper):
+    group = DelegateField(FreePersonGroupModelMapper)
+
+    class Meta:
+        model = FreePersonModel
+
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
 
@@ -642,6 +665,7 @@ class DjangoModelMappersTestCase(unittest.TestCase):
         self.tagged_item = TaggedItemModel(id=1, name='bpbot')
         self.flag_wozozo = FlagModel(id=1, flg=True)
         self.flag_moriyoshi = FlagModel(id=2, flg=False)
+        self.wozo_free = FreePersonModel(id=1, name='wozozo')
   
         self.tagged_item.save()
         self.tagged_item.tags.add(self.tag_skype)
@@ -909,6 +933,11 @@ class DjangoModelMappersTestCase(unittest.TestCase):
                 'prefix:val': self.wozozo.val
             }
         )
+
+    def test_fk_none_fail_model_mapper(self):
+        mapper = FreePersonModelMapper(self.wozo_free)
+        self.assertRaises(InvalidDelegateException, mapper.as_dict)
+
 
 if __name__ == '__main__':
     unittest.main()

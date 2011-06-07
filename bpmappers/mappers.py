@@ -3,13 +3,7 @@ from copy import copy
 
 from bpmappers.utils import MultiValueDict, SortedDict
 from bpmappers.fields import Field, BaseField
-
-class DataError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return repr(self.message)
+from bpmappers.exceptions import DataError
 
 class Options(object):
     def __init__(self, *args, **kwargs):
