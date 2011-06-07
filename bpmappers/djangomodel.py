@@ -27,12 +27,13 @@ DEFINED_MODEL_MAPPER_FIELDS = {
     models.FileField: DjangoFileField,
 }
 
-def create_model_mapper(model_class, model_fields=None, model_exclude=None):
+def create_model_mapper(model_class, model_fields=None, model_exclude=None, model_mapper_fields=None):
     class _mapper_class(ModelMapper):
         class Meta:
             model = model_class
             fields = model_fields
             exclude = model_exclude
+            mapper_fields = model_mapper_fields
     return _mapper_class
 
 class ModelMapperMetaclass(BaseMapper):
@@ -51,6 +52,11 @@ class ModelMapperMetaclass(BaseMapper):
         mapper_meta = attrs.get('Meta')
         if not mapper_meta is None:
             model = getattr(mapper_meta, 'model', None)
+            # Meta.mapper_fields
+            mapper_fields = getattr(mapper_meta, 'mapper_fields', None)
+            defined_fields = DEFINED_MODEL_MAPPER_FIELDS.copy()
+            if mapper_fields:
+                defined_fields.update(mapper_fields)
             # Meta.modelが無い場合はエラー
             if model is None:
                 raise MetaModelError
@@ -70,16 +76,16 @@ class ModelMapperMetaclass(BaseMapper):
                         continue
                     if isinstance(model_field, models.ForeignKey):
                         # ForeignKey
-                        related_model_mapper = create_model_mapper(model_field.rel.to)
+                        related_model_mapper = create_model_mapper(model_field.rel.to, model_mapper_fields=mapper_fields)
                         opt.add_field(model_field.name, DelegateField(related_model_mapper, key=model_field.name))
                     elif isinstance(model_field, models.ManyToManyField):
                         # ManyToManyField
-                        related_model_mapper = create_model_mapper(model_field.rel.to)
+                        related_model_mapper = create_model_mapper(model_field.rel.to, model_mapper_fields=mapper_fields)
                         opt.add_field(model_field.name, ListDelegateField(related_model_mapper, key=model_field.name, filter=lambda manager:manager.all()))
                 else:
-                    for defined_field in DEFINED_MODEL_MAPPER_FIELDS:
+                    for defined_field in defined_fields:
                         if isinstance(model_field, defined_field):
-                            mapper_field = DEFINED_MODEL_MAPPER_FIELDS[defined_field]
+                            mapper_field = defined_fields[defined_field]
                             opt.add_field(model_field.name, mapper_field(key=model_field.name))
                     else:
                         opt.add_field(model_field.name, DEFAULT_MAPPER_FIELD(key=model_field.name))
