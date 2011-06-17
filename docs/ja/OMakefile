@@ -1,0 +1,123 @@
+########################################################################
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this file, to deal in the File without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the File, and to permit persons to whom the
+# File is furnished to do so, subject to the following condition:
+#
+# THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE FILE OR
+# THE USE OR OTHER DEALINGS IN THE FILE.
+
+########################################################################
+# Subdirectories.
+# You may want to include some subdirectories in this project.
+# If so, define the subdirectory targets and uncomment this section.
+#
+
+.SUBDIRS: source
+
+# .DEFAULT: $(OCamlProgram $(PROGRAM), $(FILES))
+.DEFAULT: help
+
+# for Sphinx
+
+sphinxopts    =
+SPHINXBUILD   = sphinx-build
+paper         =
+builddir      = build
+srcdir        = source
+sources       = $(glob $(srcdir)/*.rst)
+
+# Internal variables.
+paperopt_a4     = -D latex_paper_size=a4
+paperopt_letter = -D latex_paper_size=letter
+ALLSPHINXOPTS   = -d $(builddir)/doctrees $(sphinxopts) $(srcdir) # $(paperopt_$(paper)) $(sphinxopts) .
+
+.PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
+
+help_message =  $"""
+Please use `make <target>' where <target> is one of
+  html      to make standalone HTML files
+  dirhtml   to make HTML files named index.html in directories
+  pickle    to make pickle files
+  json      to make JSON files
+  htmlhelp  to make HTML files and a HTML help project
+  qthelp    to make HTML files and a qthelp project
+  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+  changes   to make an overview of all changed/added/deprecated items
+  linkcheck to check all external links for integrity
+  doctest   to run all doctests embedded in the documentation (if enabled) 
+"""
+
+help:
+	eprintln( $(help_message) )
+
+clean:
+	-rm -rf $(builddir)/*
+
+DepBuild(target, message) =
+	$(target): $(sources)  $(srcdir)/conf.py
+		$(SPHINXBUILD) -b $(target) $(ALLSPHINXOPTS) $(builddir)/$(target)
+		eprintln( $(message) )
+
+# # In fact I'd like to write like following:
+# Dep_map. =
+# 	extends $(Map)
+# 	$|json|   = $''' hoge '''
+# 	$|pickle| = $''' hage '''
+# $(Dep_map.map $(DepBuild) )
+
+DepBuild( html, $''''
+		Build finished. The HTML pages are in $(builddir)/html.  
+	 	''''  )
+
+DepBuild( dirhtml, $''''
+	 	Build finished. The HTML pages are in $(builddir)/dirhtml.
+	 	'''') 
+
+DepBuild( pickle, $''''
+	Build finished; now you can process the pickle files.
+	'''')
+
+DepBuild( json, $''''
+	Build finished; now you can process the JSON files.
+	'''')
+
+DepBuild( htmlhelp, $'''
+	Build finished; now you can run HTML Help Workshop with the
+	.hhp project file in $(builddir)/htmlhelp.
+	''')
+
+DepBuild( qthelp, $''''
+	Build finished; now you can run "qcollectiongenerator" with the
+	.qhcp project file in $(builddir)/qthelp, like this:
+	# qcollectiongenerator $(builddir)/qthelp/CouchDBtheDefinitiveGuideTranslationtoJapanese.qhcp
+	To view the help file:
+	# assistant -collectionFile $(builddir)/qthelp/CouchDBtheDefinitiveGuideTranslationtoJapanese.qhc
+	'''')
+
+DepBuild( latex, $''''
+	Build finished; the LaTeX files are in $(builddir)/latex.
+	Run 'make all-pdf' or 'make all-ps' in that directory to
+	run these through (pdf)latex.
+	'''')
+
+DepBuild( changes, $''''
+	The overview file is in $(builddir)/changes.
+	'''')
+
+DepBuild( linkcheck, $''''
+	Link check complete; look for any errors in the above output
+	or in $(builddir)/linkcheck/output.txt.
+	'''')
+
+DepBuild( doctest, $''''
+	Testing of doctests in the sources finished, look at the
+	results in $(builddir)/doctest/output.txt.
+	'''')

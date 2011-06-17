@@ -7,6 +7,9 @@ syntax: glob
 *.o
 *.pyc
 *.swp
+*.omc
+*.omakedb
+*.lock
 
 syntax: regexp
 .*\#.*\#$
