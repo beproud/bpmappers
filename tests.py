@@ -10,10 +10,16 @@ class Person(object):
         self.val = val
         self.__dict__.update(extra)
 
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.name)
+
 class Book(object):
     def __init__(self, title, author):
         self.title = title
         self.author = author
+
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.title)
 
 # mapper
 class PersonMapper(Mapper):
@@ -120,6 +126,9 @@ class KeyNameConvertMapper(Mapper):
 
     def key_name(self, name,  value, field):
         return 'ns:%s' % name
+
+class DotAccessMapper(Mapper):
+    author_name = RawField('author.name')
 
 # testcase
 class FieldsTestCase(unittest.TestCase):
@@ -423,6 +432,14 @@ class MappersTestCase(unittest.TestCase):
             mapper.as_dict(),
             {
                 'ns:name': self.wozozo.name,
+            })
+
+    def test_dot_access(self):
+        mapper = DotAccessMapper(self.wozo_book)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'author_name': self.wozo_book.author.name,
             })
 
 

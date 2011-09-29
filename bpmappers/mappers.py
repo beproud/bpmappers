@@ -63,7 +63,7 @@ class Mapper(object):
         self.options = self.default_options.copy()
         self.options.update(options)
 
-    def _getattr(self, obj, key):
+    def _getattr_inner(self, obj, key):
         # attrを優先,なければスライスアクセス
         if not key:
             return
@@ -74,6 +74,16 @@ class Mapper(object):
                 return getattr(obj, key)
             except AttributeError:
                 raise DataError('"%(obj)s" does not have this key "%(key)s in %(mapper)s"' % {'obj': obj, 'key': key, 'mapper': self})
+
+    def _getattr(self, obj, key):
+        # ドットアクセスの場合は再帰
+        if '.' in key:
+            keys = key.split('.')
+            obj_child = self._getattr(obj, keys[0])
+            value = self._getattr(obj_child, '.'.join(keys[1:]))
+        else:
+            value = self._getattr_inner(obj, key)
+        return value
 
     def as_dict(self):
         parsed = SortedDict()
