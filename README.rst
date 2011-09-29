@@ -22,3 +22,9 @@ Model to dictionary mapping for Python.
    ...
    >>> SpamMapper(FooModel(foo=123, bar='abc')).as_dict()
    {'egg': 'abc', 'spam': 123}
+   >>>
+   >>> class HogeMapper(Mapper):
+   ...     hoge = RawField('hoge.piyo.fuga')
+   ...
+   >>> HogeMapper({'hoge': {'piyo': {'fuga': 123}}}).as_dict()
+   {'hoge': 123}
