@@ -569,6 +569,13 @@ class FreePersonModel(models.Model):
     class Meta:
         app_label = APP_LABEL
 
+class OneToOnePersonModel(models.Model):
+    name = models.CharField(max_length=20)
+    person = models.OneToOneField(PersonModel)
+
+    class Meta:
+        app_label = APP_LABEL
+
 #djangomodelmapper
 class PersonModelMapper(ModelMapper):
     class Meta:
@@ -652,6 +659,10 @@ class FreePersonModelMapper(ModelMapper):
     class Meta:
         model = FreePersonModel
 
+class OneToOnePersonModelMapper(ModelMapper):
+    class Meta:
+        model = OneToOnePersonModel
+
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
 
@@ -676,6 +687,7 @@ class DjangoModelMappersTestCase(unittest.TestCase):
         self.flag_wozozo = FlagModel(id=1, flg=True)
         self.flag_moriyoshi = FlagModel(id=2, flg=False)
         self.wozo_free = FreePersonModel(id=1, name='wozozo')
+        self.wozo_one = OneToOnePersonModel(id=1, name='wozo', person=self.wozozo)
   
         self.tagged_item.save()
         self.tagged_item.tags.add(self.tag_skype)
@@ -947,6 +959,22 @@ class DjangoModelMappersTestCase(unittest.TestCase):
     def test_fk_none_fail_model_mapper(self):
         mapper = FreePersonModelMapper(self.wozo_free)
         self.assertRaises(InvalidDelegateException, mapper.as_dict)
+
+
+    def test_one_to_one_field_model_mapper(self):
+        mapper = OneToOnePersonModelMapper(self.wozo_one)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': self.wozo_one.id,
+                'name': self.wozo_one.name,
+                'person': {
+                    'id': self.wozo_one.person.id,
+                    'name': self.wozo_one.person.name,
+                    'val': self.wozo_one.person.val,
+                }
+            }
+        )
 
 
 if __name__ == '__main__':
