@@ -1,10 +1,15 @@
 #!/usr/bin/env python
+import os
 from setuptools import setup, find_packages
+
+def read_file(filename):
+    return open(os.path.join(os.path.dirname(os.path.dirname(__file__)), filename)).read()
 
 setup(
     name='bpmappers',
     version='0.5dev',
     description='Model to dictionary mapping for Python',
+    long_description=read_file('README.rst'),
     author='K.K. BeProud',
     author_email='shinya.okano@beproud.jp',
     url='http://tokibito.bitbucket.org/bpmappers/',
@@ -17,6 +22,6 @@ setup(
       'Programming Language :: Python',
       'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages=["bpmappers"],
+    packages=['bpmappers'],
     test_suite='tests',
 )
