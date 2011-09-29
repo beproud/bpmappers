@@ -437,6 +437,7 @@ import os
 
 APP_LABEL = os.path.splitext(os.path.basename(__file__))[0]
 
+import django
 os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
 from django.conf import global_settings
 
@@ -445,8 +446,20 @@ global_settings.INSTALLED_APPS = (
     'django.contrib.contenttypes',
     #APP_LABEL,
 )
-global_settings.DATABASE_ENGINE = "sqlite3"
-global_settings.DATABASE_NAME = ":memory:"
+if django.VERSION > (1, 3):
+    global_settings.DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        }
+    }
+else:
+    global_settings.DATABASE_ENGINE = "sqlite3"
+    global_settings.DATABASE_NAME = ":memory:"
 
 from django.core.management import sql
 
@@ -466,10 +479,7 @@ def create_table(*models):
 
     for model in models:
         execute(connection.creation.sql_create_model(model, STYLE)[0])
-        execute(connection.creation.sql_indexes_for_model(model, STYLE))
-        #execute(sql.custom_sql_for_model(model, STYLE))
         execute(connection.creation.sql_for_many_to_many(model, STYLE))
-
 #______________________________________________________________________________
 # Your test model classes:
 import django
