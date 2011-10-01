@@ -135,6 +135,21 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
 ``bpmappers.ListDelegateField`` には、引数としてMapperを継承したクラスを指定します。
 この例では、 ``TeamMapper.members`` の値はリストとして展開されて、 ``PersonMapper`` を使ってマッピングを行うように定義されています。
 
+ドット区切りのフィールド指定による参照
+---------------------------------------
+
+ドット区切りの指定で、深い階層の値を簡単に参照できます。
+
+.. doctest::
+
+   >>> class HogeMapper(Mapper):
+   ...     hoge = RawField('hoge.piyo.fuga')
+   ...
+   >>> HogeMapper({'hoge': {'piyo': {'fuga': 123}}}).as_dict()
+   {'hoge': 123}
+
+.. note:: この機能はバージョン0.5で追加されました。
+
 フックポイント
 --------------
 
