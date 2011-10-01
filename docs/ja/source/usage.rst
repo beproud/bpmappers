@@ -142,6 +142,7 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
 
 .. doctest::
 
+   >>> from bpmappers import Mapper, RawField
    >>> class HogeMapper(Mapper):
    ...     hoge = RawField('hoge.piyo.fuga')
    ...
@@ -149,6 +150,28 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
    {'hoge': 123}
 
 .. note:: この機能はバージョン0.5で追加されました。
+
+複数の入力値を1つの値にまとめる
+-------------------------------
+
+``Mapper.data`` はインスタンス作成時に引数で与えたものが格納されています。
+この例では、入力値としてリストを渡しています。
+
+.. doctest::
+
+   >>> from bpmappers import Mapper, NonKeyField
+   >>> class Person(object):
+   ...     def __init__(self, name):
+   ...         self.name = name
+   ...
+   >>> class MultiDataSourceMapper(Mapper):
+   ...     pair = NonKeyField()
+   ...     def filter_pair(self):
+   ...         return '%s-%s' % (self.data[0].name, self.data[1].name)
+   ...
+   >>> MultiDataSourceMapper([Person('foo'), Person('bar')]).as_dict()
+   {'pair': 'foo-bar'}
+
 
 フックポイント
 --------------
