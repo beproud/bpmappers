@@ -318,4 +318,19 @@ Field.after_callback
       >>> print mapper.as_dict()
       {'info': '{ after_filter: [ after_cb: ( cb: < filter: BP > ) ] }'}       
 
-   
+
+Mapper.key_name
+~~~~~~~~~~~~~~~
+
+キー名を変更したい場合などに使用します。
+
+.. doctest::
+
+   >>> from bpmappers import Mapper, RawField
+   >>> class NameSpaceMapper(Mapper):
+   ...     name = RawField()
+   ...     def key_name(self, name,  value, field):
+   ...         return 'namespace:%s' % name
+   ...
+   >>> NameSpaceMapper(dict(name='bucho')).as_dict()
+   {'namespace:name': 'bucho'}
