@@ -3,7 +3,12 @@ import os
 from setuptools import setup, find_packages
 
 def read_file(filename):
-    return open(os.path.join(os.path.dirname(os.path.dirname(__file__)), filename)).read()
+    filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), filename)
+    if os.path.exists(filepath):
+        return open(filepath).read()
+    else:
+        return ''
+
 
 setup(
     name='bpmappers',
