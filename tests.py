@@ -680,6 +680,16 @@ class OneToOnePersonModelMapper(ModelMapper):
     class Meta:
         model = OneToOnePersonModel
 
+class TagModelMapper(ModelMapper):
+    class Meta:
+        model = TagModel
+
+class TaggedItemModelMapperShortcut(ModelMapper):
+    tags = ListDelegateField(TagModelMapper, key='tags.all')
+
+    class Meta:
+        model = TaggedItemModel
+
 # djangomodelmapper test
 class DjangoModelMappersTestCase(unittest.TestCase):
 
@@ -992,6 +1002,31 @@ class DjangoModelMappersTestCase(unittest.TestCase):
                 }
             }
         )
+
+
+    def test_related_many_to_many_shortcut(self):
+        """
+        ManyToManyField shortcut
+        """
+        mapper = TaggedItemModelMapperShortcut(self.tagged_item)
+        self.assertEqual(
+            mapper.as_dict(),
+            {
+                'id': self.tagged_item.id,
+                'name': self.tagged_item.name,
+                'tags': [
+                    {
+                        'id': self.tag_skype.id,
+                        'label': self.tag_skype.label,
+                    },
+                    {
+                        'id': self.tag_redbull.id,
+                        'label': self.tag_redbull.label,
+                    },
+                ]
+            }
+        )
+
 
 
 if __name__ == '__main__':
