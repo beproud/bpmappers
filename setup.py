@@ -27,6 +27,8 @@ setup(
       'Programming Language :: Python',
       'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages=['bpmappers'],
+    packages=find_packages(),
+    keywords=['model', 'mapper', 'django'],
+    license='BSD License',
     test_suite='tests',
 )
