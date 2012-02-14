@@ -14,7 +14,7 @@ setup(
     name='bpmappers',
     version='0.6dev',
     description='Model to dictionary mapping for Python',
-    long_description=read_file('README.rst'),
+    long_description=read_file('README.txt'),
     author='K.K. BeProud',
     author_email='shinya.okano@beproud.jp',
     url='http://tokibito.bitbucket.org/bpmappers/',
