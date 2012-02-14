@@ -17,3 +17,4 @@ syntax: regexp
 ^bpmappers.egg-info/
 ^build/
 ^dist/
+^.tox/
