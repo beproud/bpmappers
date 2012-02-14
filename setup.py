@@ -11,7 +11,7 @@ def read_file(filename):
 
 setup(
     name='bpmappers',
-    version='0.5.1',
+    version='0.6dev',
     description='Model to dictionary mapping for Python',
     long_description=read_file('README.txt'),
     author='K.K. BeProud',
