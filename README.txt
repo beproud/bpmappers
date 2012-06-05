@@ -2,7 +2,7 @@
 bpmappers
 =========
 
-Model to dictionary mapping for Python.
+A mapping tool from model to dictionary.
 
 ::
 
