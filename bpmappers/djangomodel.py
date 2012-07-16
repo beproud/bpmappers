@@ -77,7 +77,7 @@ class ModelMapperMetaclass(BaseMapper):
                     if isinstance(model_field, models.ForeignKey):
                         # ForeignKey
                         related_model_mapper = create_model_mapper(model_field.rel.to, model_mapper_fields=mapper_fields)
-                        opt.add_field(model_field.name, DelegateField(related_model_mapper, key=model_field.name))
+                        opt.add_field(model_field.name, DelegateField(related_model_mapper, key=model_field.name, required=not model_field.null))
                     elif isinstance(model_field, models.ManyToManyField):
                         # ManyToManyField
                         related_model_mapper = create_model_mapper(model_field.rel.to, model_mapper_fields=mapper_fields)
