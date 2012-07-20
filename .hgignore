@@ -10,6 +10,7 @@ syntax: glob
 *.omc
 *.omakedb
 *.lock
+*.coverage
 
 syntax: regexp
 .*\#.*\#$
