@@ -174,3 +174,23 @@ class DotAccessValueTest(TestCase):
         self.assertEqual(result, {
             'foo': "ham",
         })
+
+
+class OptionsParameterTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject()
+
+        class TestMapper(mappers.Mapper):
+            spam = fields.NonKeyField()
+
+            def filter_spam(self):
+                return self.options.get('bacon')
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj, bacon="egg")
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'spam': "egg",
+        })
