@@ -1,4 +1,5 @@
 from unittest2 import TestCase
+from nose.plugins.skip import SkipTest
 
 
 class DummyCallback(object):
