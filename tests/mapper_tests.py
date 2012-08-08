@@ -274,3 +274,51 @@ class MapperCallableValueTest(TestCase):
         self.assertEqual(result, {
             'foo': "egg",
         })
+
+
+class MapperListValueTest(TestCase):
+    def setUp(self):
+        self.obj = [DummyObject(spam="egg")]
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "egg",
+        })
+
+
+class MapperOrderMethodTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham", knights="ni")
+
+        class TestMapperBase(mappers.Mapper):
+            spam = fields.RawField()
+            bacon = fields.RawField()
+            knights = fields.RawField()
+
+        class TestOrderedA(TestMapperBase):
+            def order(self, parsed):
+                parsed.keyOrder = ['spam', 'bacon', 'knights']
+
+        class TestOrderedB(TestMapperBase):
+            def order(self, parsed):
+                parsed.keyOrder = ['bacon', 'knights', 'spam']
+
+        self.mapper_class_a = TestOrderedA
+        self.mapper_class_b = TestOrderedB
+
+    def test_mapping_a(self):
+        mapper = self.mapper_class_a(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result.keys(), ['spam', 'bacon', 'knights'])
+
+    def test_mapping_b(self):
+        mapper = self.mapper_class_b(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result.keys(), ['bacon', 'knights', 'spam'])
