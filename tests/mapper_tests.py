@@ -322,3 +322,23 @@ class MapperOrderMethodTest(TestCase):
         mapper = self.mapper_class_b(self.obj)
         result = mapper.as_dict()
         self.assertEqual(result.keys(), ['bacon', 'knights', 'spam'])
+
+
+class MapperKeyNameMethodTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+            def key_name(self, name, value, field):
+                return 'bar'
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'bar': "egg",
+        })
