@@ -157,3 +157,20 @@ class InheritedMapperOverrideFieldTest(TestCase):
         self.assertEqual(result, {
             'foo': "ham",
         })
+
+
+class DotAccessValueTest(TestCase):
+    def setUp(self):
+        self.obj = {"spam": {"egg": {"bacon": "ham"}}}
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam.egg.bacon')
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "ham",
+        })
