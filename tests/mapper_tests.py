@@ -1,4 +1,4 @@
-from testing import TestCase, DummyObject
+from testing import TestCase, DummyObject, DummyCallback
 
 from bpmappers import fields
 from bpmappers import mappers
@@ -118,6 +118,49 @@ class DelegateMappingTest(TestCase):
         })
 
 
+class DelegateMappingAttachParentTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam=DummyObject(name="spam egg"))
+
+        class TestMapper(mappers.Mapper):
+            name = fields.RawField()
+
+        class TestDelegate(mappers.Mapper):
+            foo = fields.DelegateField(TestMapper, 'spam', attach_parent=True)
+
+        self.mapper_class = TestDelegate
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'name': "spam egg",
+        })
+
+
+class NonKeyDelegateMappingTest(TestCase):
+    def setUp(self):
+        self.obj = {}
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+        class TestDelegate(mappers.Mapper):
+            bar = fields.NonKeyDelegateField(TestMapper)
+
+            def filter_bar(self):
+                return dict(spam="egg")
+
+        self.mapper_class = TestDelegate
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'bar': {'foo': "egg"},
+        })
+
+
 class InheritedMapperAddFieldTest(TestCase):
     def setUp(self):
         self.obj = DummyObject(spam="egg", bacon="ham")
@@ -193,4 +236,41 @@ class OptionsParameterTest(TestCase):
         result = mapper.as_dict()
         self.assertEqual(result, {
             'spam': "egg",
+        })
+
+
+class MapperAttachMethodTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+            def attach_foo(self, parsed, value):
+                parsed["bar"] = value
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'bar': "egg",
+        })
+
+
+class MapperCallableValueTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam=DummyCallback("egg"))
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "egg",
         })
