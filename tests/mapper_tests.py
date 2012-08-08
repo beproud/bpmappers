@@ -40,3 +40,120 @@ class DictToDictMappingTest(TestCase):
             'foo': "egg",
             'bar': "ham",
         })
+
+
+class FieldFilterMethodTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+            bar = fields.RawField('bacon')
+
+            def filter_foo(self, value):
+                return value.upper()
+
+            def filter_bar(self, value):
+                return "test"
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "EGG",
+            'bar': "test",
+        })
+
+
+class FieldAfterFilterMethodTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+            bar = fields.RawField('bacon')
+
+            def after_filter_foo(self, value):
+                return value.upper()
+
+            def after_filter_bar(self, value):
+                return "test"
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "EGG",
+            'bar': "test",
+        })
+
+
+class DelegateMappingTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(
+            spam=DummyObject(name="spam egg"),
+            bacon=DummyObject(name="bacon egg"))
+
+        class TestMapper(mappers.Mapper):
+            "name --> egg_name"
+            egg_name = fields.RawField('name')
+
+        class TestDelegate(mappers.Mapper):
+            "spam -(TestMapper)-> spam_egg"
+            spam_egg = fields.DelegateField(TestMapper, 'spam')
+            bacon_egg = fields.DelegateField(TestMapper, 'bacon')
+
+        self.mapper_class = TestDelegate
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'spam_egg': {'egg_name': "spam egg"},
+            'bacon_egg': {'egg_name': "bacon egg"},
+        })
+
+
+class InheritedMapperAddFieldTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+        class InheritedMapper(TestMapper):
+            bar = fields.RawField('bacon')
+
+        self.mapper_class = InheritedMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "egg",
+            'bar': "ham",
+        })
+
+
+class InheritedMapperOverrideFieldTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(spam="egg", bacon="ham")
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam')
+
+        class InheritedMapper(TestMapper):
+            foo = fields.RawField('bacon')
+
+        self.mapper_class = InheritedMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "ham",
+        })
