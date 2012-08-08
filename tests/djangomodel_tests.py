@@ -4,7 +4,6 @@ from testing import TestCase, SkipTest
 
 models = None
 djangomodel = None
-BaseModel = None
 
 
 def setUpModule():
