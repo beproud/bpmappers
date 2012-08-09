@@ -21,6 +21,13 @@ class Options(object):
             # 既に登録されてる場合は削除する
             lst = self.fields.getlist(field.key)
             self.fields.setlist(field.key, [tp for tp in lst if tp[0] != name])
+            for key in self.fields.keys():
+                lst = self.fields.getlist(key)
+                updated_lst = [tp for tp in lst if tp[0] != name]
+                if updated_lst:
+                    self.fields.setlist(key, [tp for tp in lst if tp[0] != name])
+                else:
+                    del self.fields[key]
         else:
             self.field_names.append(name)
         self.fields.appendlist(field.key, (name, field))
