@@ -1,6 +1,159 @@
+###############################
+# django.utils.datastructures #
+###############################
+import copy
+import warnings
+from types import GeneratorType
+
+from bpmappers import six
+
+
+class SortedDict(dict):
+    """
+    A dictionary that keeps its keys in the order in which they're inserted.
+    """
+    def __new__(cls, *args, **kwargs):
+        instance = super(SortedDict, cls).__new__(cls, *args, **kwargs)
+        instance.keyOrder = []
+        return instance
+
+    def __init__(self, data=None):
+        if data is None:
+            data = {}
+        elif isinstance(data, GeneratorType):
+            # Unfortunately we need to be able to read a generator twice.  Once
+            # to get the data into self with our super().__init__ call and a
+            # second time to setup keyOrder correctly
+            data = list(data)
+        super(SortedDict, self).__init__(data)
+        if isinstance(data, dict):
+            self.keyOrder = list(data)
+        else:
+            self.keyOrder = []
+            seen = set()
+            for key, value in data:
+                if key not in seen:
+                    self.keyOrder.append(key)
+                    seen.add(key)
+
+    def __deepcopy__(self, memo):
+        return self.__class__([(key, copy.deepcopy(value, memo))
+                               for key, value in six.iteritems(self)])
+
+    def __copy__(self):
+        # The Python's default copy implementation will alter the state
+        # of self. The reason for this seems complex but is likely related to
+        # subclassing dict.
+        return self.copy()
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            self.keyOrder.append(key)
+        super(SortedDict, self).__setitem__(key, value)
+
+    def __delitem__(self, key):
+        super(SortedDict, self).__delitem__(key)
+        self.keyOrder.remove(key)
+
+    def __iter__(self):
+        return iter(self.keyOrder)
+
+    def pop(self, k, *args):
+        result = super(SortedDict, self).pop(k, *args)
+        try:
+            self.keyOrder.remove(k)
+        except ValueError:
+            # Key wasn't in the dictionary in the first place. No problem.
+            pass
+        return result
+
+    def popitem(self):
+        result = super(SortedDict, self).popitem()
+        self.keyOrder.remove(result[0])
+        return result
+
+    def _iteritems(self):
+        for key in self.keyOrder:
+            yield key, self[key]
+
+    def _iterkeys(self):
+        for key in self.keyOrder:
+            yield key
+
+    def _itervalues(self):
+        for key in self.keyOrder:
+            yield self[key]
+
+    if six.PY3:
+        items = _iteritems
+        keys = _iterkeys
+        values = _itervalues
+    else:
+        iteritems = _iteritems
+        iterkeys = _iterkeys
+        itervalues = _itervalues
+
+        def items(self):
+            return list(self.iteritems())
+
+        def keys(self):
+            return list(self.iterkeys())
+
+        def values(self):
+            return list(self.itervalues())
+
+    def update(self, dict_):
+        for k, v in six.iteritems(dict_):
+            self[k] = v
+
+    def setdefault(self, key, default):
+        if key not in self:
+            self.keyOrder.append(key)
+        return super(SortedDict, self).setdefault(key, default)
+
+    def value_for_index(self, index):
+        """Returns the value of the item at the given zero-based index."""
+        # This, and insert() are deprecated because they cannot be implemented
+        # using collections.OrderedDict (Python 2.7 and up), which we'll
+        # eventually switch to
+        warnings.warn(
+            "SortedDict.value_for_index is deprecated", PendingDeprecationWarning,
+            stacklevel=2
+        )
+        return self[self.keyOrder[index]]
+
+    def insert(self, index, key, value):
+        """Inserts the key, value pair before the item with the given index."""
+        warnings.warn(
+            "SortedDict.insert is deprecated", PendingDeprecationWarning,
+            stacklevel=2
+        )
+        if key in self.keyOrder:
+            n = self.keyOrder.index(key)
+            del self.keyOrder[n]
+            if n < index:
+                index -= 1
+        self.keyOrder.insert(index, key)
+        super(SortedDict, self).__setitem__(key, value)
+
+    def copy(self):
+        """Returns a copy of this object."""
+        # This way of initializing the copy means it works for subclasses, too.
+        return self.__class__(self)
+
+    def __repr__(self):
+        """
+        Replaces the normal dict.__repr__ with a version that returns the keys
+        in their sorted order.
+        """
+        return '{%s}' % ', '.join(['%r: %r' % (k, v) for k, v in six.iteritems(self)])
+
+    def clear(self):
+        super(SortedDict, self).clear()
+        self.keyOrder = []
+
 class MultiValueDictKeyError(KeyError):
     pass
-
 
 class MultiValueDict(dict):
     """
@@ -11,6 +164,10 @@ class MultiValueDict(dict):
     >>> d['name']
     'Simon'
     >>> d.getlist('name')
+    ['Adrian', 'Simon']
+    >>> d.getlist('doesnotexist')
+    []
+    >>> d.getlist('doesnotexist', ['Adrian', 'Simon'])
     ['Adrian', 'Simon']
     >>> d.get('lastname', 'nonexistent')
     'nonexistent'
@@ -35,7 +192,7 @@ class MultiValueDict(dict):
         try:
             list_ = super(MultiValueDict, self).__getitem__(key)
         except KeyError:
-            raise MultiValueDictKeyError, "Key %r not found in %r" % (key, self)
+            raise MultiValueDictKeyError("Key %r not found in %r" % (key, self))
         try:
             return list_[-1]
         except IndexError:
@@ -45,10 +202,12 @@ class MultiValueDict(dict):
         super(MultiValueDict, self).__setitem__(key, [value])
 
     def __copy__(self):
-        return self.__class__(super(MultiValueDict, self).items())
+        return self.__class__([
+            (k, v[:])
+            for k, v in self.lists()
+        ])
 
     def __deepcopy__(self, memo=None):
-        import copy
         if memo is None:
             memo = {}
         result = self.__class__()
@@ -62,13 +221,13 @@ class MultiValueDict(dict):
         obj_dict = self.__dict__.copy()
         obj_dict['_data'] = dict([(k, self.getlist(k)) for k in self])
         return obj_dict
-    
+
     def __setstate__(self, obj_dict):
         data = obj_dict.pop('_data', {})
         for k, v in data.items():
             self.setlist(k, v)
         self.__dict__.update(obj_dict)
-        
+
     def get(self, key, default=None):
         """
         Returns the last data value for the passed key. If key doesn't exist
@@ -82,15 +241,17 @@ class MultiValueDict(dict):
             return default
         return val
 
-    def getlist(self, key):
+    def getlist(self, key, default=None):
         """
         Returns the list of values for the passed key. If key doesn't exist,
-        then an empty list is returned.
+        then a default value is returned.
         """
         try:
             return super(MultiValueDict, self).__getitem__(key)
         except KeyError:
-            return []
+            if default is None:
+                return []
+            return default
 
     def setlist(self, key, list_):
         super(MultiValueDict, self).__setitem__(key, list_)
@@ -98,53 +259,61 @@ class MultiValueDict(dict):
     def setdefault(self, key, default=None):
         if key not in self:
             self[key] = default
+            # Do not return default here because __setitem__() may store
+            # another value -- QueryDict.__setitem__() does. Look it up.
         return self[key]
 
-    def setlistdefault(self, key, default_list=()):
+    def setlistdefault(self, key, default_list=None):
         if key not in self:
+            if default_list is None:
+                default_list = []
             self.setlist(key, default_list)
+            # Do not return default_list here because setlist() may store
+            # another value -- QueryDict.setlist() does. Look it up.
         return self.getlist(key)
 
     def appendlist(self, key, value):
         """Appends an item to the internal list associated with key."""
-        self.setlistdefault(key, [])
-        super(MultiValueDict, self).__setitem__(key, self.getlist(key) + [value])
+        self.setlistdefault(key).append(value)
 
-    def items(self):
-        """
-        Returns a list of (key, value) pairs, where value is the last item in
-        the list associated with the key.
-        """
-        return [(key, self[key]) for key in self.keys()]
-
-    def iteritems(self):
+    def _iteritems(self):
         """
         Yields (key, value) pairs, where value is the last item in the list
         associated with the key.
         """
-        for key in self.keys():
-            yield (key, self[key])
+        for key in self:
+            yield key, self[key]
 
-    def lists(self):
-        """Returns a list of (key, list) pairs."""
-        return super(MultiValueDict, self).items()
-
-    def iterlists(self):
+    def _iterlists(self):
         """Yields (key, list) pairs."""
-        return super(MultiValueDict, self).iteritems()
+        return six.iteritems(super(MultiValueDict, self))
 
-    def values(self):
-        """Returns a list of the last value on every key list."""
-        return [self[key] for key in self.keys()]
-        
-    def itervalues(self):
+    def _itervalues(self):
         """Yield the last value on every key list."""
-        for key in self.iterkeys():
+        for key in self:
             yield self[key]
-    
+
+    if six.PY3:
+        items = _iteritems
+        lists = _iterlists
+        values = _itervalues
+    else:
+        iteritems = _iteritems
+        iterlists = _iterlists
+        itervalues = _itervalues
+
+        def items(self):
+            return list(self.iteritems())
+
+        def lists(self):
+            return list(self.iterlists())
+
+        def values(self):
+            return list(self.itervalues())
+
     def copy(self):
-        """Returns a copy of this object."""
-        return self.__deepcopy__()
+        """Returns a shallow copy of this object."""
+        return copy.copy(self)
 
     def update(self, *args, **kwargs):
         """
@@ -152,132 +321,23 @@ class MultiValueDict(dict):
         Also accepts keyword args.
         """
         if len(args) > 1:
-            raise TypeError, "update expected at most 1 arguments, got %d" % len(args)
+            raise TypeError("update expected at most 1 arguments, got %d" % len(args))
         if args:
             other_dict = args[0]
             if isinstance(other_dict, MultiValueDict):
                 for key, value_list in other_dict.lists():
-                    self.setlistdefault(key, []).extend(value_list)
+                    self.setlistdefault(key).extend(value_list)
             else:
                 try:
                     for key, value in other_dict.items():
-                        self.setlistdefault(key, []).append(value)
+                        self.setlistdefault(key).append(value)
                 except TypeError:
-                    raise ValueError, "MultiValueDict.update() takes either a MultiValueDict or dictionary"
-        for key, value in kwargs.iteritems():
-            self.setlistdefault(key, []).append(value)
+                    raise ValueError("MultiValueDict.update() takes either a MultiValueDict or dictionary")
+        for key, value in six.iteritems(kwargs):
+            self.setlistdefault(key).append(value)
 
-
-class SortedDict(dict):
-    """
-    A dictionary that keeps its keys in the order in which they're inserted.
-    """
-    def __new__(cls, *args, **kwargs):
-        instance = super(SortedDict, cls).__new__(cls, *args, **kwargs)
-        instance.keyOrder = []
-        return instance
-
-    def __init__(self, data=None):
-        if data is None:
-            data = {}
-        super(SortedDict, self).__init__(data)
-        if isinstance(data, dict):
-            self.keyOrder = data.keys()
-        else:
-            self.keyOrder = []
-            for key, value in data:
-                if key not in self.keyOrder:
-                    self.keyOrder.append(key)
-
-    def __deepcopy__(self, memo):
-        from copy import deepcopy
-        return self.__class__([(key, deepcopy(value, memo))
-                               for key, value in self.iteritems()])
-
-    def __setitem__(self, key, value):
-        super(SortedDict, self).__setitem__(key, value)
-        if key not in self.keyOrder:
-            self.keyOrder.append(key)
-
-    def __delitem__(self, key):
-        super(SortedDict, self).__delitem__(key)
-        self.keyOrder.remove(key)
-
-    def __iter__(self):
-        for k in self.keyOrder:
-            yield k
-
-    def pop(self, k, *args):
-        result = super(SortedDict, self).pop(k, *args)
-        try:
-            self.keyOrder.remove(k)
-        except ValueError:
-            # Key wasn't in the dictionary in the first place. No problem.
-            pass
-        return result
-
-    def popitem(self):
-        result = super(SortedDict, self).popitem()
-        self.keyOrder.remove(result[0])
-        return result
-
-    def items(self):
-        return zip(self.keyOrder, self.values())
-
-    def iteritems(self):
-        for key in self.keyOrder:
-            yield key, super(SortedDict, self).__getitem__(key)
-
-    def keys(self):
-        return self.keyOrder[:]
-
-    def iterkeys(self):
-        return iter(self.keyOrder)
-
-    def values(self):
-        return map(super(SortedDict, self).__getitem__, self.keyOrder)
-
-    def itervalues(self):
-        for key in self.keyOrder:
-            yield super(SortedDict, self).__getitem__(key)
-
-    def update(self, dict_):
-        for k, v in dict_.items():
-            self.__setitem__(k, v)
-
-    def setdefault(self, key, default):
-        if key not in self.keyOrder:
-            self.keyOrder.append(key)
-        return super(SortedDict, self).setdefault(key, default)
-
-    def value_for_index(self, index):
-        """Returns the value of the item at the given zero-based index."""
-        return self[self.keyOrder[index]]
-
-    def insert(self, index, key, value):
-        """Inserts the key, value pair before the item with the given index."""
-        if key in self.keyOrder:
-            n = self.keyOrder.index(key)
-            del self.keyOrder[n]
-            if n < index:
-                index -= 1
-        self.keyOrder.insert(index, key)
-        super(SortedDict, self).__setitem__(key, value)
-
-    def copy(self):
-        """Returns a copy of this object."""
-        # This way of initializing the copy means it works for subclasses, too.
-        obj = self.__class__(self)
-        obj.keyOrder = self.keyOrder[:]
-        return obj
-
-    def __repr__(self):
+    def dict(self):
         """
-        Replaces the normal dict.__repr__ with a version that returns the keys
-        in their sorted order.
+        Returns current object as a dict with singular values.
         """
-        return '{%s}' % ', '.join(['%r: %r' % (k, v) for k, v in self.items()])
-
-    def clear(self):
-        super(SortedDict, self).clear()
-        self.keyOrder = []
+        return dict((key, self[key]) for key in self)
