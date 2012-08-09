@@ -2,6 +2,9 @@ import testing_django
 
 from testing import TestCase, SkipTest
 
+from bpmappers import fields
+from bpmappers import mappers
+
 models = None
 djangomodel = None
 
@@ -43,5 +46,87 @@ class ModelMapperTest(TestCase):
         self.assertEqual(result, {
             'id': 1,
             'spam': "egg",
+            'bacon': "ham",
+        })
+
+
+class MetaFieldsTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+            bacon = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = "testing"
+
+        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+                fields = ['spam', 'bacon']
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'spam': "egg",
+            'bacon': "ham",
+        })
+
+
+class MetaExcludeTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+            bacon = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = "testing"
+
+        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+                exclude = ['id', 'bacon']
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'spam': "egg",
+        })
+
+
+class OverriteFieldTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+            bacon = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = "testing"
+
+        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+
+        class TestMapper(djangomodel.ModelMapper):
+            spam = fields.StubField("knight")
+
+            class Meta:
+                model = DummyModel
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "knight",
             'bacon': "ham",
         })
