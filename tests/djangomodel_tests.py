@@ -2,7 +2,7 @@ from datetime import datetime, date, time
 
 import testing_django
 
-from testing import TestCase, SkipTest
+from testing import TestCase, DummyObject, SkipTest
 
 from bpmappers import fields
 from bpmappers import mappers
@@ -23,6 +23,20 @@ def setUpModule():
     global djangomodel
     from bpmappers import djangomodel as bpmappers_djangomodel
     djangomodel = bpmappers_djangomodel
+
+
+class DjangoFileFieldTest(TestCase):
+    def setUp(self):
+        self.field = djangomodel.DjangoFileField()
+        self.obj = DummyObject(url="egg")
+
+    def test_url(self):
+        value = self.field.get_value(None, self.obj)
+        self.assertEqual(value, "egg")
+
+    def test_none(self):
+        value = self.field.get_value(None, None)
+        self.assertIsNone(value)
 
 
 class ModelMapperTest(TestCase):
@@ -577,4 +591,33 @@ class ImageFieldModelMapperTest(TestCase):
         self.assertEqual(result, {
             'id': 1,
             'spam': "egg.jpg",
+        })
+
+
+class MixinModelMapperTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(mappers.Mapper):
+            knight = fields.StubField("ni")
+
+        class MixinMapper(TestMapper, djangomodel.ModelMapper):
+            __metaclass__ = djangomodel.ModelMapperMetaclass
+
+            class Meta:
+                model = DummyModel
+
+        self.obj = DummyModel(id=1, spam="egg")
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "egg",
         })
