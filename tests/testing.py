@@ -2,10 +2,11 @@ import sys
 
 # version > 2.7
 if sys.hexversion > 0x02070000:
-    from unittest import TestCase, SkipTest
+    from unittest import TestCase
 else:
     from unittest2 import TestCase
-    from nose.plugins.skip import SkipTest
+
+from nose.plugins.skip import SkipTest
 
 
 class DummyCallback(object):

@@ -122,7 +122,7 @@ class Mapper(object):
                         raise DataError(error.message)
                 else:
                     v = self._getattr(self.data, k)
-                if callable(v):
+                if hasattr(v, '__call__'):
                     v = v()
                 filter_name = 'filter_%s' % name
                 if hasattr(self, filter_name):
