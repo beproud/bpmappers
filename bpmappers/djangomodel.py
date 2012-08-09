@@ -87,7 +87,9 @@ class ModelMapperMetaclass(BaseMapper):
                         if isinstance(model_field, defined_field):
                             mapper_field = defined_fields[defined_field]
                             opt.add_field(model_field.name, mapper_field(key=model_field.name))
+                            break
                     else:
+                        # If there is no match field, use default.
                         opt.add_field(model_field.name, DEFAULT_MAPPER_FIELD(key=model_field.name))
         attrs['_meta'] = opt
         return BaseMapper.__new__(cls, name, bases, attrs)
