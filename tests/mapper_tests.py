@@ -316,12 +316,12 @@ class MapperOrderMethodTest(TestCase):
     def test_mapping_a(self):
         mapper = self.mapper_class_a(self.obj)
         result = mapper.as_dict()
-        self.assertEqual(result.keys(), ['spam', 'bacon', 'knights'])
+        self.assertEqual(list(result.keys()), ['spam', 'bacon', 'knights'])
 
     def test_mapping_b(self):
         mapper = self.mapper_class_b(self.obj)
         result = mapper.as_dict()
-        self.assertEqual(result.keys(), ['bacon', 'knights', 'spam'])
+        self.assertEqual(list(result.keys()), ['bacon', 'knights', 'spam'])
 
 
 class MapperKeyNameMethodTest(TestCase):

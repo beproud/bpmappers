@@ -21,7 +21,7 @@ class Options(object):
             # 既に登録されてる場合は削除する
             lst = self.fields.getlist(field.key)
             self.fields.setlist(field.key, [tp for tp in lst if tp[0] != name])
-            for key in self.fields.keys():
+            for key in list(self.fields.keys()):
                 lst = self.fields.getlist(key)
                 updated_lst = [tp for tp in lst if tp[0] != name]
                 if updated_lst:
@@ -61,7 +61,7 @@ class BaseMapper(type):
                 lst = base_opt.fields.getlist(key)
                 for _name, field in lst:
                     opt.add_field(_name, field)
-        for k, v in attrs.iteritems():
+        for k, v in attrs.items():
             if isinstance(v, BaseField):
                 # fieldsはMultiValueDict
                 opt.add_field(k, v)
@@ -69,7 +69,6 @@ class BaseMapper(type):
         return type.__new__(cls, name, bases, attrs)
 
 class Mapper(object):
-    __metaclass__ = BaseMapper
     default_options = {}
 
     def __init__(self, data=None, **options):
@@ -150,17 +149,11 @@ class Mapper(object):
         return parsed
 
     def order(self, parsed):
-        def _cmp(x, y):
-            if x in self._meta.field_names:
-                x_pos = self._meta.field_names.index(x)
-            else:
-                x_pos = -1
-            if y in self._meta.field_names:
-                y_pos = self._meta.field_names.index(y)
-            else:
-                y_pos = -1
-            return cmp(x_pos, y_pos)
-        parsed.keyOrder = sorted(parsed.keyOrder, cmp=_cmp)
+        def _key_func(k):
+            if k in self._meta.field_names:
+                return self._meta.field_names.index(k)
+            return -1
+        parsed.keyOrder = sorted(parsed.keyOrder, key=_key_func)
 
     def key_name(self, name, value, field):
         """
@@ -170,3 +163,6 @@ class Mapper(object):
 
     def __unicode__(self):
         return unicode(self.as_dict())
+
+# Python3
+Mapper = BaseMapper('Mapper', (Mapper, ), {})
