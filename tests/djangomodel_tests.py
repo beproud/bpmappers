@@ -243,3 +243,23 @@ class CustomMapperFieldsTest(TestCase):
             'id': 1,
             'spam': "<egg>",
         })
+
+
+class CreateModelMapperTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+            bacon = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        self.model_class = DummyModel
+
+    def test_create_mapper(self):
+        mapper_class = djangomodel.create_model_mapper(self.model_class)
+        self.assertEqual(len(mapper_class._meta.fields), 3)
+        self.assertTrue('id' in mapper_class._meta.fields)
+        self.assertTrue('spam' in mapper_class._meta.fields)
+        self.assertTrue('bacon' in mapper_class._meta.fields)
