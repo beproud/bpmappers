@@ -153,7 +153,7 @@ class AddFieldTest(TestCase):
         })
 
 
-class OverriteFieldTest(TestCase):
+class InheritedModelMapperOverrideFieldTest(TestCase):
     def setUp(self):
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
@@ -210,4 +210,36 @@ class InheritedModelMapperTest(TestCase):
             'id': 1,
             'spam': "egg",
             'bacon': "ham",
+        })
+
+
+class CustomMapperFieldsTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        self.obj = DummyModel(id=1, spam="egg")
+
+        class CustomMapperField(fields.RawField):
+            def as_value(self, mapper, value):
+                return "<%s>" % value
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+                mapper_fields = {
+                    models.CharField: CustomMapperField,
+                }
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "<egg>",
         })
