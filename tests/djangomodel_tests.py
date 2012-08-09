@@ -1,8 +1,8 @@
 from datetime import datetime, date, time
 
-import testing_django
+from . import testing_django
 
-from testing import TestCase, DummyObject, SkipTest
+from .testing import TestCase, DummyObject, SkipTest
 
 from bpmappers import fields
 from bpmappers import mappers

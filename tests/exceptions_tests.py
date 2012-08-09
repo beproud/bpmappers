@@ -1,4 +1,4 @@
-from testing import TestCase
+from .testing import TestCase
 
 from bpmappers import exceptions
 

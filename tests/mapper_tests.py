@@ -1,4 +1,4 @@
-from testing import TestCase, DummyObject, DummyCallback
+from .testing import TestCase, DummyObject, DummyCallback
 
 from bpmappers import fields
 from bpmappers import mappers

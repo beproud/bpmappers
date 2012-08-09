@@ -1,4 +1,4 @@
-from testing import TestCase, DummyCallback
+from .testing import TestCase, DummyCallback
 
 from bpmappers import fields
 from bpmappers.exceptions import InvalidDelegateException
