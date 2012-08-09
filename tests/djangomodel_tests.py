@@ -606,13 +606,12 @@ class MixinModelMapperTest(TestCase):
             knight = fields.StubField("ni")
 
         class MixinMapper(TestMapper, djangomodel.ModelMapper):
-            __metaclass__ = djangomodel.ModelMapperMetaclass
 
             class Meta:
                 model = DummyModel
 
         self.obj = DummyModel(id=1, spam="egg")
-        self.mapper_class = TestMapper
+        self.mapper_class = MixinMapper
 
     def test_mapping(self):
         mapper = self.mapper_class(self.obj)
@@ -620,4 +619,5 @@ class MixinModelMapperTest(TestCase):
         self.assertEqual(result, {
             'id': 1,
             'spam': "egg",
+            'knight': "ni",
         })

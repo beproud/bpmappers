@@ -45,15 +45,22 @@ class BaseMapper(type):
     def __new__(cls, name, bases, attrs):
         # copy bases
         opt = None
+        base_opts = []
         for base_class in bases:
             if hasattr(base_class, '_meta'):
-                base_meta = base_class._meta.copy()
-                opt = base_meta
+                base_opt = base_class._meta.copy()
+                base_opts.append(base_opt)
         if not '_meta' in attrs:
             if opt is None:
                 opt = Options()
         else:
             opt = attrs['_meta'].copy()
+        # Merge bases
+        for base_opt in base_opts:
+            for key in base_opt.fields.keys():
+                lst = base_opt.fields.getlist(key)
+                for _name, field in lst:
+                    opt.add_field(_name, field)
         for k, v in attrs.iteritems():
             if isinstance(v, BaseField):
                 # fieldsはMultiValueDict
