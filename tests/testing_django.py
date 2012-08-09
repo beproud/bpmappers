@@ -6,6 +6,10 @@ else:
     LIB_ENABLED_DJANGO = True
 
 
+def lower_class_name(obj):
+    return obj.__class__.__name__.lower()
+
+
 def initialize():
     from django.conf import settings
     settings.configure()
