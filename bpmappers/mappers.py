@@ -113,8 +113,9 @@ class Mapper(object):
                     for item in self.data:
                         try:
                             v = self._getattr(item, k)
-                        except DataError, e:
-                            error = e
+                        except DataError:
+                            import sys
+                            error = sys.exc_info()[1]
                         else:
                             data_check = True
                             break
