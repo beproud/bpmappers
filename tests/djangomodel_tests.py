@@ -472,6 +472,8 @@ class ManyToManyFieldThroughModelTest(TestCase):
         testing_django._setup_db()
         testing_django.create_table(ChildModel)
         testing_django.create_table(ParentModel)
+        if testing_django.get_django_version() < (1, 2):
+            testing_django.create_table(ThroughModel)
 
         class TestMapper(djangomodel.ModelMapper):
             class Meta:
