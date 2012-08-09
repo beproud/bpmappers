@@ -329,6 +329,64 @@ class ForeignKeyFieldNullValueTest(TestCase):
         })
 
 
+class ForeignKeySelfReferenceTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.ForeignKey("DummyModel", null=True, blank=True)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+
+        self.obj = DummyModel(id=1)
+        self.obj.spam = DummyModel(id=2)
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+        })
+
+
+class OneToOneFieldModelMappingTest(TestCase):
+    def setUp(self):
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ParentModel(models.Model):
+            bacon = models.OneToOneField(ChildModel)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = ParentModel
+
+        child = ChildModel(id=1, spam="egg")
+        self.parent = ParentModel(id=1, bacon=child)
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.parent)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'bacon': {
+                'id': 1,
+                'spam': "egg",
+            },
+        })
+
+
 class ManyToManyFieldModelMapperTest(TestCase):
     def setUp(self):
         class ChildModel(models.Model):
@@ -372,4 +430,151 @@ class ManyToManyFieldModelMapperTest(TestCase):
                     'spam': "egg",
                 }
             ],
+        })
+
+
+class ManyToManyFieldThroughModelTest(TestCase):
+    def setUp(self):
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ParentModel(models.Model):
+            bacon = models.ManyToManyField(ChildModel, through="ThroughModel")
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ThroughModel(models.Model):
+            child = models.ForeignKey(ChildModel)
+            parent = models.ForeignKey(ParentModel)
+            knight = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        testing_django._setup_db()
+        testing_django.create_table(ChildModel)
+        testing_django.create_table(ParentModel)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = ThroughModel
+
+        child = ChildModel(id=1, spam="egg")
+        child.save()
+        parent = ParentModel(id=1)
+        parent.save()
+        self.through = ThroughModel(
+            id=1, child=child, parent=parent, knight="ni")
+        self.through.save()
+        self.mapper_class = TestMapper
+
+    def tearDown(self):
+        testing_django._teardown_db()
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.through)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'knight': "ni",
+            'child': {
+                'id': 1,
+                'spam': "egg",
+            },
+            'parent': {
+                'id': 1,
+                'bacon': [{
+                    'id': 1,
+                    'spam': "egg",
+                }],
+            },
+        })
+
+
+class CustomFieldTest(TestCase):
+    def setUp(self):
+        class CustomField(models.Field):
+            pass
+
+        class DummyModel(models.Model):
+            spam = CustomField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+
+        self.obj = DummyModel(id=1, spam="egg")
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "egg",
+        })
+
+
+class FileFieldModelMapperTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.FileField(upload_to='./')
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+
+        self.obj = DummyModel(id=1)
+        # django 1.0.x is not able to set name attribute.
+        if testing_django.get_django_version() < (1, 1):
+            self.obj.spam._name = 'egg.txt'
+        else:
+            self.obj.spam.name = 'egg.txt'
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "egg.txt",
+        })
+
+
+class ImageFieldModelMapperTest(TestCase):
+    def setUp(self):
+        class DummyModel(models.Model):
+            spam = models.ImageField(upload_to='./')
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = DummyModel
+
+        self.obj = DummyModel(id=1)
+        # django 1.0.x is not able to set name attribute.
+        if testing_django.get_django_version() < (1, 1):
+            self.obj.spam._name = 'egg.jpg'
+        else:
+            self.obj.spam.name = 'egg.jpg'
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'spam': "egg.jpg",
         })

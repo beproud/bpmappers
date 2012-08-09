@@ -22,12 +22,18 @@ def initialize():
     )
 
 
+def get_django_version():
+    return django.VERSION
+
+
 def get_connection():
+    "get default database connection"
     from django.db import connections
     return connections['default']
 
 
 def get_cursor(connection):
+    "get database cursor from connection"
     return connection.cursor()
 
 
