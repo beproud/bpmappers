@@ -12,12 +12,47 @@ def lower_class_name(obj):
 
 def initialize():
     from django.conf import settings
-    settings.configure()
+    settings.configure(
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            },
+        },
+    )
+
+
+def get_connection():
+    from django.db import connections
+    return connections['default']
+
+
+def get_cursor(connection):
+    return connection.cursor()
+
+
+def get_style():
+    from django.core.management.color import no_style
+    return no_style()
+
+
+def create_table(model):
+    connection = get_connection()
+    cursor = get_cursor(connection)
+    style = get_style()
+    pending_references = {}
+
+    sql, references = connection.creation.sql_create_model(
+        model, style)
+    for statement in sql:
+        cursor.execute(statement)
+    for f in model._meta.many_to_many:
+        create_table(f.rel.through)
 
 
 def _setup_db():
-    pass
+    return get_connection()
 
 
 def _teardown_db():
-    pass
+    get_connection().close()

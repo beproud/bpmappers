@@ -263,3 +263,113 @@ class CreateModelMapperTest(TestCase):
         self.assertTrue('id' in mapper_class._meta.fields)
         self.assertTrue('spam' in mapper_class._meta.fields)
         self.assertTrue('bacon' in mapper_class._meta.fields)
+
+
+class ForeignKeyFieldModelMapperTest(TestCase):
+    def setUp(self):
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ParentModel(models.Model):
+            bacon = models.ForeignKey(ChildModel)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = ParentModel
+
+        self.child = ChildModel(id=1, spam="egg")
+        self.parent = ParentModel(id=1, bacon=self.child)
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.parent)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'bacon': {
+                'id': 1,
+                'spam': "egg",
+            },
+        })
+
+
+class ForeignKeyFieldNullValueTest(TestCase):
+    def setUp(self):
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ParentModel(models.Model):
+            bacon = models.ForeignKey(ChildModel, null=True, blank=True)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = ParentModel
+
+        self.parent = ParentModel(id=1, bacon=None)
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.parent)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'bacon': None,
+        })
+
+
+class ManyToManyFieldModelMapperTest(TestCase):
+    def setUp(self):
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        class ParentModel(models.Model):
+            bacon = models.ManyToManyField(ChildModel)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        testing_django._setup_db()
+        testing_django.create_table(ChildModel)
+        testing_django.create_table(ParentModel)
+
+        class TestMapper(djangomodel.ModelMapper):
+            class Meta:
+                model = ParentModel
+
+        child = ChildModel(id=1, spam="egg")
+        child.save()
+        self.parent = ParentModel(id=1)
+        self.parent.save()
+        self.parent.bacon.add(child)
+        self.mapper_class = TestMapper
+
+    def tearDown(self):
+        testing_django._teardown_db()
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.parent)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'id': 1,
+            'bacon': [
+                {
+                    'id': 1,
+                    'spam': "egg",
+                }
+            ],
+        })
