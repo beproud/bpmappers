@@ -5,6 +5,7 @@ from bpmappers.utils import MultiValueDict, SortedDict
 from bpmappers.fields import Field, BaseField
 from bpmappers.exceptions import DataError
 
+
 class Options(object):
     def __init__(self, *args, **kwargs):
         self.fields = MultiValueDict()
@@ -12,9 +13,7 @@ class Options(object):
         self.field_names = []
 
     def add_field(self, name, field):
-        """
-        フィールドを追加
-        """
+        """Add field"""
         if isinstance(field, Field) and field.key is None:
             field.key = name
         if name in self.field_names:
@@ -25,7 +24,8 @@ class Options(object):
                 lst = self.fields.getlist(key)
                 updated_lst = [tp for tp in lst if tp[0] != name]
                 if updated_lst:
-                    self.fields.setlist(key, [tp for tp in lst if tp[0] != name])
+                    self.fields.setlist(
+                        key, [tp for tp in lst if tp[0] != name])
                 else:
                     del self.fields[key]
         else:
@@ -40,6 +40,7 @@ class Options(object):
 
     def __repr__(self):
         return '<Options: %s>' % self.fields
+
 
 class BaseMapper(type):
     def __new__(cls, name, bases, attrs):
@@ -68,6 +69,7 @@ class BaseMapper(type):
         attrs['_meta'] = opt
         return type.__new__(cls, name, bases, attrs)
 
+
 class Mapper(object):
     default_options = {}
 
@@ -86,7 +88,10 @@ class Mapper(object):
             try:
                 return getattr(obj, key)
             except AttributeError:
-                raise DataError('"%(obj)s" does not have this key "%(key)s in %(mapper)s"' % {'obj': obj, 'key': key, 'mapper': self})
+                raise DataError(
+                    '"%(obj)s" does not have this key'
+                    ' "%(key)s in %(mapper)s"' % {
+                        'obj': obj, 'key': key, 'mapper': self})
 
     def _getattr(self, obj, key):
         # ドットアクセスの場合は再帰
