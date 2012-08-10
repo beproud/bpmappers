@@ -32,12 +32,12 @@ templates_path = ['_templates']
 # The suffix of source filenames.
 source_suffix = '.rst'
 
-html_theme = 'haiku'
-html_theme_options = {
-    'textcolor': '#456',
-    'linkcolor': '#A00000',
-    'visitedlinkcolor': '#A00000',
-}
+html_theme = 'default'
+#html_theme_options = {
+#    'textcolor': '#456',
+#    'linkcolor': '#A00000',
+#    'visitedlinkcolor': '#A00000',
+#}
 html_logo='beproud.png'
 
 # The encoding of source files.
