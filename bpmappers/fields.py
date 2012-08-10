@@ -142,13 +142,19 @@ class NonKeyDelegateField(NonKeyField):
 
 
 class NonKeyListDelegateField(NonKeyDelegateField):
-    def __init__(self, mapper_class, callback=None, filter=None, *args, **kwargs):
+    def __init__(self, mapper_class, callback=None, filter=None, after_filter=None, *args, **kwargs):
         super(NonKeyListDelegateField, self).__init__(mapper_class, callback, *args, **kwargs)
         self._filter = filter
+        self._after_filter = after_filter
 
     def filter(self, value=None):
         if self._filter:
             return self._filter(value)
+        return value
+
+    def after_filter(self, value):
+        if self._after_filter:
+            return self._after_filter(value)
         return value
 
     def as_value(self, mapper, value=[]):
@@ -156,5 +162,5 @@ class NonKeyListDelegateField(NonKeyDelegateField):
         # filterは割り込み用
         value = self.filter(value)
         for v in value:
-            parsed.append(super(NonKeyListDelegateField, self).as_value(mapper, self.callback_value(v)))
+            parsed.append(self.after_filter(super(NonKeyListDelegateField, self).as_value(mapper, self.callback_value(v))))
         return parsed

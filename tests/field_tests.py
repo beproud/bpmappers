@@ -225,3 +225,18 @@ class NonKeyListDelegateFieldFilterTest(TestCase):
         value = self.field.get_value(DummyMapper(None), [{"Spam": "Egg"}])
         self.assertEqual(value, self.filter.returns)
         self.assertTrue(self.filter.called)
+
+
+class NonKeyListDelegateFieldAfterFilterTest(TestCase):
+    "NonKeyListDelegateField.after_filter"
+    def setUp(self):
+        self.after_filter = DummyCallback("Spam")
+        self.field = fields.NonKeyListDelegateField(
+            DummyMapper,
+            after_filter=self.after_filter)
+
+    def test_get_value(self):
+        value = self.field.get_value(
+            DummyMapper(None), [1, 2, 3])
+        self.assertEqual(value, ["Spam", "Spam", "Spam"])
+        self.assertTrue(self.after_filter.called)
