@@ -17,5 +17,6 @@ syntax: regexp
 ^docs/.*/build/
 ^bpmappers.egg-info/
 ^build/
+^_build/
 ^dist/
 ^.tox/
