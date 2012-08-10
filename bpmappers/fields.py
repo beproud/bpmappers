@@ -73,8 +73,7 @@ class ChoiceField(Field):
 
 
 class DelegateField(Field):
-    """
-    指定したMapperにデリゲートするフィールド
+    """It is Field delegating mapping to the mapper_class.
     """
     def __init__(self, mapper_class, key=None, callback=None,
                  before_filter=None, required=True, attach_parent=False,
@@ -102,8 +101,7 @@ class DelegateField(Field):
 
 
 class ListDelegateField(DelegateField):
-    """
-    指定したMapperにリストとしてデリゲートするフィールド
+    """Delegate mapping to mapper_class the value as list.
     """
     def __init__(self, mapper_class, key=None, callback=None, filter=None,
                  after_filter=None, *args, **kwargs):
