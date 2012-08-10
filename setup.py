@@ -33,5 +33,6 @@ setup(
     packages=find_packages(),
     keywords=['model', 'mapper', 'django'],
     license='BSD License',
-    test_suite='tests',
+    test_suite='nose.collector',
+    tests_require=['nose'],
 )
