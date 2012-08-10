@@ -4,6 +4,16 @@ from bpmappers import fields
 from bpmappers.exceptions import InvalidDelegateException
 
 
+class BaseFieldTest(TestCase):
+    "Tests for BaseField class."
+    def setUp(self):
+        self.field = fields.BaseField()
+
+    def test_implementation_required(self):
+        self.assertRaises(NotImplementedError, lambda :self.field.is_nonkey)
+        self.assertRaises(NotImplementedError, self.field.as_value, None, None)
+
+
 class NonKeyFieldTest(TestCase):
     "Tests for NonKeyField class."
     def setUp(self):
@@ -43,6 +53,17 @@ class RawFieldTest(TestCase):
 
     def test_is_nonkey(self):
         self.assertEqual(self.field.is_nonkey, False)
+
+
+class AfterCallbackTest(TestCase):
+    "Tests for after_callback"
+    def setUp(self):
+        self.callback = DummyCallback("Spam")
+        self.field = fields.NonKeyField(after_callback=self.callback)
+
+    def test_get_value(self):
+        value = self.field.get_value(None, None)
+        self.assertEqual(value, "Spam")
 
 
 class ChoiceFieldTest(TestCase):
