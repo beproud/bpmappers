@@ -8,9 +8,13 @@ Djangoフレームワークのモデルインスタンスをマッピングす�
 Djangoフレームワークのバージョン
 --------------------------------
 
-``bpmappers.djangomodel`` は、Djangoフレームワークのバージョンが 1.0 から 1.3 に対応しています。
+``bpmappers.djangomodel`` は、Djangoフレームワークのバージョンが 1.0 から 1.4 に対応しています。
 
 1.0 以前のバージョンへの対応予定は、今のところありません。
+
+.. note::
+
+   DjangoフレームワークはPython3.xをサポートしていないため、 ``bpmappers.djangomodel`` モジュールもPython3.xでは使用できません。
 
 ModelMapperの使用
 -----------------
