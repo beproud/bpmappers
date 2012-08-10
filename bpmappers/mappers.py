@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from copy import copy
 
 from bpmappers.utils import MultiValueDict, SortedDict
@@ -9,7 +8,7 @@ from bpmappers.exceptions import DataError
 class Options(object):
     def __init__(self, *args, **kwargs):
         self.fields = MultiValueDict()
-        # 重複チェック用のフィールド名リスト
+        # Use this list to checking for existing name.
         self.field_names = []
 
     def add_field(self, name, field):
@@ -17,7 +16,7 @@ class Options(object):
         if isinstance(field, Field) and field.key is None:
             field.key = name
         if name in self.field_names:
-            # 既に登録されてる場合は削除する
+            # if the field is already registered, remove it.
             lst = self.fields.getlist(field.key)
             self.fields.setlist(field.key, [tp for tp in lst if tp[0] != name])
             for key in list(self.fields.keys()):
@@ -64,7 +63,7 @@ class BaseMapper(type):
                     opt.add_field(_name, field)
         for k, v in attrs.items():
             if isinstance(v, BaseField):
-                # fieldsはMultiValueDict
+                # fields is MultiValueDict
                 opt.add_field(k, v)
         attrs['_meta'] = opt
         return type.__new__(cls, name, bases, attrs)
@@ -79,7 +78,7 @@ class Mapper(object):
         self.options.update(options)
 
     def _getattr_inner(self, obj, key):
-        # attrを優先,なければスライスアクセス
+        # Priority "attr", "dict", "getattr".
         if not key:
             return
         if isinstance(obj, dict):
@@ -94,7 +93,7 @@ class Mapper(object):
                         'obj': obj, 'key': key, 'mapper': self})
 
     def _getattr(self, obj, key):
-        # ドットアクセスの場合は再帰
+        # Recursive call if it is dot splited accessor.
         if '.' in key:
             keys = key.split('.')
             obj_child = self._getattr(obj, keys[0])
@@ -109,12 +108,12 @@ class Mapper(object):
     def as_dict(self):
         parsed = SortedDict()
         for k in self._meta.fields:
-            # _meta.fieldsはMultiValue
+            # _meta.fields is MultiValueDict
             for name, field in self._meta.fields.getlist(k):
                 if field.is_nonkey:
                     v = None
                 elif isinstance(self.data, list):
-                    # listだった場合は最初に取得できた要素を使う
+                    # if data is list, use first.
                     data_check = False
                     error = None
                     for item in self.data:
