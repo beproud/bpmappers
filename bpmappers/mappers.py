@@ -93,6 +93,9 @@ class Mapper(object):
         if '.' in key:
             keys = key.split('.')
             obj_child = self._getattr(obj, keys[0])
+            # If child object is callable, call that object.
+            if hasattr(obj_child, '__call__'):
+                obj_child = obj_child()
             value = self._getattr(obj_child, '.'.join(keys[1:]))
         else:
             value = self._getattr_inner(obj, key)

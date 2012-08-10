@@ -219,6 +219,27 @@ class DotAccessValueTest(TestCase):
         })
 
 
+class DotAccessCallableTest(TestCase):
+    def setUp(self):
+        self.obj = DummyObject(
+            spam=DummyCallback(
+                DummyObject(egg=DummyCallback('bacon'))
+            )
+        )
+
+        class TestMapper(mappers.Mapper):
+            foo = fields.RawField('spam.egg')
+
+        self.mapper_class = TestMapper
+
+    def test_mapping(self):
+        mapper = self.mapper_class(self.obj)
+        result = mapper.as_dict()
+        self.assertEqual(result, {
+            'foo': "bacon",
+        })
+
+
 class OptionsParameterTest(TestCase):
     def setUp(self):
         self.obj = DummyObject()
