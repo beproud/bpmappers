@@ -18,7 +18,7 @@ setup(
     long_description=read_file('README.txt'),
     author='BeProud Inc.',
     author_email='shinya.okano@beproud.jp',
-    url='http://tokibito.bitbucket.org/bpmappers/',
+    url='http://bpmappers.readthedocs.org/',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
