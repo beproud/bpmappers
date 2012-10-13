@@ -53,7 +53,7 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
 .. code-block:: pycon
 
    >>> from django.db import models
-   >>> from bpmappers.djangomodel import *
+   >>> from bpmappers.djangomodel import ModelMapper
    >>> class Person(models.Model):
    ...    name = models.CharField(max_length=10)
    ...    val = models.IntegerField()
@@ -134,6 +134,36 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
 
 ``bpmappers.ListDelegateField`` には、引数としてMapperを継承したクラスを指定します。
 この例では、 ``TeamMapper.members`` の値はリストとして展開されて、 ``PersonMapper`` を使ってマッピングを行うように定義されています。
+
+DjangoのManyToManyFieldをマッピングする場合、ListDelegateFieldにはDjangoのManagerオブジェクトが渡されるため、filterパラメータを指定する必要があります。
+
+.. code-block:: pycon
+
+   >>> from django.db import models
+   >>> from bpmappers import Mapper, RawField, ListDelegateField
+   >>> class Person(models.Model):
+   ...     name = models.CharField(max_length=10)
+   ...
+   >>> class Group(models.Model):
+   ...     name = models.CharField(max_length=10)
+   ...     persons = models.ManyToManyField(Person)
+   ...
+   >>> class PersonMapper(Mapper):
+   ...     name = RawField()
+   ...
+   >>> class GroupMapper(Mapper):
+   ...     name = RawField()
+   ...     # filterを指定する
+   ...     persons = ListDelegateField(PersonMapper, filter=lambda manager: manager.all())
+   ...
+   >>> person1 = Person.objects.create('wozozo', 123)
+   >>> person2 = Person.objects.create('feiz', 456))
+   >>> group = Group.objects.create('test')
+   >>> group.persons.add(person1)
+   >>> group.persons.add(person2)
+   >>> mapper = GroupMapper(group)
+   >>> print mapper.as_dict()
+   {'name': 'test', [{'name': 'wozozo', 'val': 123}, {'name': 'feiz', 'val': 456}]}
 
 ドット区切りのフィールド指定による参照
 ---------------------------------------
