@@ -1,4 +1,8 @@
 language: python
+env:
+    - PIP_USE_MIRRORS=true
 install:
-  - pip install tox
+    - sudo apt-get update -qq
+    - sudo apt-get install -q python3.3-dev
+    - pip install --use-mirrors tox
 script: tox
