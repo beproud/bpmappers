@@ -19,9 +19,9 @@ pip によるインストール
 
   $ pip install bpmappers
 
-開発版リポジトリ
-----------------
+PyPI上のページ
+--------------
 
-開発版のソースコードは `Mercurial` で管理され、 bitbucket.org でホストされています。
+ソースコードはPyPI上のページからも入手できます。
 
-https://bitbucket.org/tokibito/python-bpmappers/
+:URL: http://pypi.python.org/pypi/bpmappers
