@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from bpmappers.fields import Field, RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
+from bpmappers import six
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -120,11 +121,10 @@ class ModelMapperMetaclass(BaseMapper):
         return BaseMapper.__new__(cls, name, bases, attrs)
 
 
-class ModelMapper(Mapper):
+class ModelMapper(six.with_metaclass(ModelMapperMetaclass, Mapper)):
     """
     djangoモデルに対して使えるMapper
     """
-    __metaclass__ = ModelMapperMetaclass
 
     def _getattr(self, obj, key):
         """
