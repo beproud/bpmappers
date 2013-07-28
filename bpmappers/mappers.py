@@ -1,5 +1,7 @@
 from copy import copy
 
+import six
+
 from bpmappers.utils import MultiValueDict, SortedDict
 from bpmappers.fields import Field, BaseField
 from bpmappers.exceptions import DataError
@@ -69,7 +71,7 @@ class BaseMapper(type):
         return type.__new__(cls, name, bases, attrs)
 
 
-class Mapper(object):
+class Mapper(six.with_metaclass(BaseMapper)):
     default_options = {}
 
     def __init__(self, data=None, **options):
@@ -170,6 +172,3 @@ class Mapper(object):
 
     def __unicode__(self):
         return unicode(self.as_dict())
-
-# Python3
-Mapper = BaseMapper('Mapper', (Mapper, ), {})
