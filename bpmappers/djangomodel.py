@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import six
+
 from bpmappers.fields import Field, RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
-from bpmappers import six
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models

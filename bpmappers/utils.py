@@ -5,7 +5,7 @@ import copy
 import warnings
 from types import GeneratorType
 
-from bpmappers import six
+import six
 
 
 class SortedDict(dict):
