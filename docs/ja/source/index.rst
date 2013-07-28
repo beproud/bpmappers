@@ -14,6 +14,7 @@ bpmappers ドキュメント
    djangomodel
    reference
    develop
+   changelist
 
 索引
 ====

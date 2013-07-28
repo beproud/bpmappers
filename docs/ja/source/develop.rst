@@ -32,8 +32,14 @@
 CI
 ==
 
-Travis CI上でtoxを実行しています。
+Travis CIとDrone.io上でビルドしています。
 
-.. image:: https://travis-ci.org/tokibito/bpmappers.png?branch=master
+**Travis CI**:
 
+:ビルドステータス: .. image:: https://travis-ci.org/tokibito/bpmappers.png?branch=master
 :URL: https://travis-ci.org/tokibito/bpmappers
+
+**Drone.io**:
+
+:ビルドステータス: .. image:: https://drone.io/bitbucket.org/tokibito/python-bpmappers/status.png
+:URL: https://drone.io/bitbucket.org/tokibito/python-bpmappers
