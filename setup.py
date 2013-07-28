@@ -13,7 +13,7 @@ def read_file(filename):
 
 setup(
     name='bpmappers',
-    version='0.7',
+    version='0.8dev',
     description='A mapping tool from model to dictionary.',
     long_description=read_file('README.txt'),
     author='BeProud Inc.',
