@@ -1,6 +1,5 @@
 language: python
 env:
-    - PIP_USE_MIRRORS=true
     - PIP_INSECURE=1
 install:
     - sudo apt-get update -qq
