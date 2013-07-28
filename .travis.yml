@@ -5,6 +5,6 @@ install:
     - sudo apt-get update -qq
     - sudo apt-get install -q python3.1-dev
     - sudo apt-get install -q python3.3-dev
-    - sudo pip install --use-mirrors -U pip
-    - pip install --use-mirrors tox
+    - sudo pip install -U virtualenv==1.9.1
+    - sudo pip install --use-mirrors tox
 script: tox
