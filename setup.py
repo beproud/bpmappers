@@ -15,7 +15,7 @@ setup(
     name='bpmappers',
     version='0.8dev',
     description='A mapping tool from model to dictionary.',
-    long_description=read_file('README.txt'),
+    long_description=read_file('README.rst'),
     author='BeProud Inc.',
     author_email='shinya.okano@beproud.jp',
     url='http://bpmappers.readthedocs.org/',
