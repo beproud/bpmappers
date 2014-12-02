@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def read_file(filename):
@@ -32,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages=find_packages(),
+    packages=['bpmappers'],
     keywords=['model', 'mapper', 'django'],
     license='BSD License',
     install_requires=['six'],
