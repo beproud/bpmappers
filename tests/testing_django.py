@@ -18,19 +18,37 @@ def initialize():
     from django.conf import settings
     if get_django_version() >= (1, 2):
         settings_dict = dict(
+            DEBUG=True,
             DATABASES={
                 'default': {
                     'ENGINE': 'django.db.backends.sqlite3',
                     'NAME': ':memory:',
                 },
             },
+            MIDDLEWARE_CLASSES=(),
         )
     else:
         settings_dict = dict(
+            DEBUG=True,
             DATABASE_ENGINE='sqlite3',
             DATABASE_NAME=':memory:'
         )
-    settings.configure(**settings_dict)
+    if not settings.configured:
+        settings.configure(**settings_dict)
+
+    # In Django 1.7 or later, using "django.apps" module.
+    if get_django_version() >= (1, 7):
+        from django.apps import apps
+        if not apps.ready:
+            apps.populate(settings.INSTALLED_APPS)
+            from django.core.management import call_command
+            call_command('migrate', interactive=False)
+    else:
+        from django.db.models.loading import cache as model_cache
+        if not model_cache.loaded:
+            model_cache._populate()
+            from django.core.management import call_command
+            call_command('syncdb', interactive=False)
 
 
 def get_connection():
