@@ -48,9 +48,11 @@ class StubField(NonKeyField):
 
 
 class Field(BaseField):
-    def __init__(self, key=None, callback=None, *args, **kwargs):
+    def __init__(self, key=None, callback=None, skip_callable=False,
+                 *args, **kwargs):
         super(Field, self).__init__(callback, *args, **kwargs)
         self.key = key
+        self.skip_callable = skip_callable
 
     @property
     def is_nonkey(self):
@@ -63,8 +65,10 @@ class RawField(Field):
 
 
 class ChoiceField(Field):
-    def __init__(self, choices, key=None, callback=None, *args, **kwargs):
-        super(ChoiceField, self).__init__(key, callback, *args, **kwargs)
+    def __init__(self, choices, key=None, callback=None, skip_callable=False,
+                 *args, **kwargs):
+        super(ChoiceField, self).__init__(
+            key, callback, skip_callable, *args, **kwargs)
         self.choices = choices
 
     def as_value(self, mapper, value):
@@ -75,10 +79,11 @@ class ChoiceField(Field):
 class DelegateField(Field):
     """It is Field delegating mapping to the mapper_class.
     """
-    def __init__(self, mapper_class, key=None, callback=None,
+    def __init__(self, mapper_class, key=None, callback=None, skip_callable=True,
                  before_filter=None, required=True, attach_parent=False,
                  *args, **kwargs):
-        super(DelegateField, self).__init__(key, callback, *args, **kwargs)
+        super(DelegateField, self).__init__(
+            key, callback, skip_callable, *args, **kwargs)
         self._before_filter = before_filter
         self.mapper_class = mapper_class
         self.required = required
@@ -104,9 +109,9 @@ class ListDelegateField(DelegateField):
     """Delegate mapping to mapper_class the value as list.
     """
     def __init__(self, mapper_class, key=None, callback=None, filter=None,
-                 after_filter=None, *args, **kwargs):
+                 skip_callable=True, after_filter=None, *args, **kwargs):
         super(ListDelegateField, self).__init__(
-            mapper_class, key, callback, *args, **kwargs)
+            mapper_class, key, callback, skip_callable, *args, **kwargs)
         self._filter = filter
         self._after_filter = after_filter
 

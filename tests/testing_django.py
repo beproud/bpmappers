@@ -33,6 +33,11 @@ def initialize():
             DATABASE_ENGINE='sqlite3',
             DATABASE_NAME=':memory:'
         )
+    settings_dict.update(dict(
+        INSTALLED_APPS=(
+            'tests.testing_django',
+        ),
+    ))
     if not settings.configured:
         settings.configure(**settings_dict)
 
@@ -90,9 +95,20 @@ def create_table(model):
                 cursor.execute(m2m_sql[0])
 
 
+def set_models(**kwargs):
+    if get_django_version() >= (1, 7):
+        from collections import OrderedDict
+        from django.apps import apps
+        apps.app_configs['testing_django'].models = OrderedDict(**kwargs)
+        apps.get_models.cache_clear()
+
+
 def _setup_db():
     return get_connection()
 
 
 def _teardown_db():
     get_connection().close()
+
+
+__path__ = []  # Needed in Django 1.1, 1.2, 1.3

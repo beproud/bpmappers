@@ -131,7 +131,7 @@ class Mapper(six.with_metaclass(BaseMapper)):
                         raise DataError(error.message)
                 else:
                     v = self._getattr(self.data, k)
-                if hasattr(v, '__call__'):
+                if hasattr(v, '__call__') and not field.skip_callable:
                     v = v()
                 filter_name = 'filter_%s' % name
                 if hasattr(self, filter_name):

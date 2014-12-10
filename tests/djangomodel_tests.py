@@ -403,14 +403,16 @@ class OneToOneFieldModelMappingTest(TestCase):
 
 class ManyToManyFieldModelMapperTest(TestCase):
     def setUp(self):
-        class ChildModel(models.Model):
-            spam = models.CharField(max_length=30)
+        class ParentModel(models.Model):
+            bacon = models.ManyToManyField('ChildModel')
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class ParentModel(models.Model):
-            bacon = models.ManyToManyField(ChildModel)
+        testing_django.set_models(parentmodel=ParentModel)
+
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
@@ -449,14 +451,16 @@ class ManyToManyFieldModelMapperTest(TestCase):
 
 class ManyToManyFieldThroughModelTest(TestCase):
     def setUp(self):
-        class ChildModel(models.Model):
-            spam = models.CharField(max_length=30)
+        class ParentModel(models.Model):
+            bacon = models.ManyToManyField('ChildModel', through="ThroughModel")
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class ParentModel(models.Model):
-            bacon = models.ManyToManyField(ChildModel, through="ThroughModel")
+        testing_django.set_models(parentmodel=ParentModel)
+
+        class ChildModel(models.Model):
+            spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
