@@ -52,7 +52,7 @@ class BaseMapper(type):
             if hasattr(base_class, '_meta'):
                 base_opt = base_class._meta.copy()
                 base_opts.append(base_opt)
-        if not '_meta' in attrs:
+        if '_meta' not in attrs:
             if opt is None:
                 opt = Options()
         else:

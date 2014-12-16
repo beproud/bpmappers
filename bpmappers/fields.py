@@ -79,9 +79,9 @@ class ChoiceField(Field):
 class DelegateField(Field):
     """It is Field delegating mapping to the mapper_class.
     """
-    def __init__(self, mapper_class, key=None, callback=None, skip_callable=True,
-                 before_filter=None, required=True, attach_parent=False,
-                 *args, **kwargs):
+    def __init__(self, mapper_class, key=None, callback=None,
+                 skip_callable=True, before_filter=None, required=True,
+                 attach_parent=False, *args, **kwargs):
         super(DelegateField, self).__init__(
             key, callback, skip_callable, *args, **kwargs)
         self._before_filter = before_filter

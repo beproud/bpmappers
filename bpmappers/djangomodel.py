@@ -45,11 +45,7 @@ def create_model_mapper(model_class, model_fields=None, model_exclude=None,
 
 class ModelMapperMetaclass(BaseMapper):
     def __new__(cls, name, bases, attrs):
-        #for base_class in bases:
-        #    if hasattr(base_class, '_meta'):
-        #        base_meta = base_class._meta.copy()
-        #        attrs['_meta'] = base_meta
-        if not '_meta' in attrs:
+        if '_meta' not in attrs:
             opt = Options()
             attrs['_meta'] = opt
         else:
@@ -57,7 +53,7 @@ class ModelMapperMetaclass(BaseMapper):
         # BaseMapperの処理が後に来るので
         # ここで先にoptを拡張する
         mapper_meta = attrs.get('Meta')
-        if not mapper_meta is None:
+        if mapper_meta is not None:
             model = getattr(mapper_meta, 'model', None)
             # Meta.mapper_fields
             mapper_fields = getattr(mapper_meta, 'mapper_fields', None)
@@ -70,12 +66,12 @@ class ModelMapperMetaclass(BaseMapper):
             for model_field in model._meta.fields + model._meta.many_to_many:
                 # Meta.fields
                 if hasattr(mapper_meta, 'fields'):
-                    if not mapper_meta.fields is None \
-                            and not model_field.name in mapper_meta.fields:
+                    if mapper_meta.fields is not None \
+                            and model_field.name not in mapper_meta.fields:
                         continue
                 # Meta.exclude
                 if hasattr(mapper_meta, 'exclude'):
-                    if not mapper_meta.exclude is None \
+                    if mapper_meta.exclude is not None \
                             and model_field.name in mapper_meta.exclude:
                         continue
                 # モデルのフィールドに対応したField追加
