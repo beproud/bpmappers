@@ -25,4 +25,4 @@ PyPI上のページ
 
 ソースコードはPyPI上のページからも入手できます。
 
-:URL: http://pypi.python.org/pypi/bpmappers
+:URL: https://pypi.python.org/pypi/bpmappers

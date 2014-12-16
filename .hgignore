@@ -11,6 +11,7 @@ syntax: glob
 *.omakedb
 *.lock
 *.coverage
+venv
 
 syntax: regexp
 .*\#.*\#$
