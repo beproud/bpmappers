@@ -100,7 +100,7 @@ def set_models(**kwargs):
         from collections import OrderedDict
         from django.apps import apps
         apps.app_configs['testing_django'].models = OrderedDict(**kwargs)
-        apps.get_models.cache_clear()
+        apps.clear_cache()
 
 
 def _setup_db():
