@@ -409,13 +409,15 @@ class ManyToManyFieldModelMapperTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        testing_django.set_models(parentmodel=ParentModel)
+        testing_django.register_model(ParentModel)
 
         class ChildModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
+
+        testing_django.register_model(ChildModel)
 
         testing_django._setup_db()
         testing_django.create_table(ChildModel)
@@ -457,13 +459,15 @@ class ManyToManyFieldThroughModelTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        testing_django.set_models(parentmodel=ParentModel)
+        testing_django.register_model(ParentModel)
 
         class ChildModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
+
+        testing_django.register_model(ChildModel)
 
         class ThroughModel(models.Model):
             child = models.ForeignKey(ChildModel)
@@ -472,6 +476,8 @@ class ManyToManyFieldThroughModelTest(TestCase):
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
+
+        testing_django.register_model(ThroughModel)
 
         testing_django._setup_db()
         testing_django.create_table(ChildModel)

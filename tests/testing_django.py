@@ -95,11 +95,14 @@ def create_table(model):
                 cursor.execute(m2m_sql[0])
 
 
-def set_models(**kwargs):
+def register_model(model):
     if get_django_version() >= (1, 7):
-        from collections import OrderedDict
+        #from collections import OrderedDict
         from django.apps import apps
-        apps.app_configs['testing_django'].models = OrderedDict(**kwargs)
+        app_models = apps.all_models['testing_django']
+        if model in app_models:
+            app_models.pop(model)
+        apps.register_model('testing_django', model)
         apps.clear_cache()
 
 
