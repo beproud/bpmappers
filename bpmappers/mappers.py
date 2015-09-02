@@ -92,7 +92,7 @@ class Mapper(six.with_metaclass(BaseMapper)):
                 raise DataError(
                     '"%(obj)s" does not have this key'
                     ' "%(key)s in %(mapper)s"' % {
-                        'obj': obj, 'key': key, 'mapper': self})
+                        'obj': obj, 'key': key, 'mapper': repr(self)})
 
     def _getattr(self, obj, key):
         # Recursive call if it is dot splited accessor.
@@ -170,5 +170,8 @@ class Mapper(six.with_metaclass(BaseMapper)):
         """
         return name
 
-    def __unicode__(self):
-        return unicode(self.as_dict())
+    def __repr__(self):
+        return "<%s: %s>" % (self.__class__.__name__, self)
+
+    def __str__(self):
+        return str(', '.join(self._meta.field_names))
