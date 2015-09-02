@@ -4,6 +4,12 @@
 変更履歴
 ========
 
+0.8.1
+=====
+
+* Django 1.8に対応
+* fixes `#25 <https://bitbucket.org/tokibito/python-bpmappers/issues/25>`_
+
 0.8
 ===
 
