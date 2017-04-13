@@ -1,87 +1,106 @@
-from .testing import TestCase, DummyCallback
+import pytest
 
-from bpmappers import fields
-from bpmappers.exceptions import InvalidDelegateException
+from .testing import DummyCallback
 
 
-class BaseFieldTest(TestCase):
+class TestBaseField(object):
     "Tests for BaseField class."
-    def setUp(self):
-        self.field = fields.BaseField()
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import BaseField
+        return BaseField()
 
-    def test_implementation_required(self):
-        self.assertRaises(NotImplementedError, lambda :self.field.is_nonkey)
-        self.assertRaises(NotImplementedError, self.field.as_value, None, None)
+    def test_implementation_required(self, target):
+        with pytest.raises(NotImplementedError):
+            target.is_nonkey()
+        with pytest.raises(NotImplementedError):
+            target.as_value(None, None)
 
 
-class NonKeyFieldTest(TestCase):
+class TestNonKeyField(object):
     "Tests for NonKeyField class."
-    def setUp(self):
-        self.callback = DummyCallback("Spam")
-        self.field = fields.NonKeyField(self.callback)
+    @pytest.fixture
+    def callback(self):
+        return DummyCallback("Spam")
 
-    def test_get_value(self):
-        value = self.field.get_value(None, None)
-        self.assertTrue(self.callback.called)
-        self.assertEqual(value, self.callback.returns)
+    def target(self, callback):
+        from bpmappers.fields import NonKeyField
+        return NonKeyField(callback)
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, True)
+    def test_get_value(self, callback):
+        target = self.target(callback)
+        value = target.get_value(None, None)
+        assert callback.called
+        assert value == callback.returns
+
+    def test_is_nonkey(self, callback):
+        target = self.target(callback)
+        assert target.is_nonkey
 
 
-class StubFieldTest(TestCase):
+class TestStubField(object):
     "Tests for StubField class."
-    def setUp(self):
-        self.field = fields.StubField("Spam")
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import StubField
+        return StubField("Spam")
 
-    def test_as_value(self):
-        value = self.field.as_value(None)
-        self.assertEqual(value, "Spam")
+    def test_as_value(self, target):
+        value = target.as_value(None)
+        assert value == "Spam"
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, True)
+    def test_is_nonkey(self, target):
+        assert target.is_nonkey
 
 
-class RawFieldTest(TestCase):
+class TestRawField(object):
     "Tests for RawField class."
-    def setUp(self):
-        self.field = fields.RawField(key="SpamKey")
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import RawField
+        return RawField(key="SpamKey")
 
-    def test_get_value(self):
-        value = self.field.get_value(None, "Egg")
-        self.assertEqual(value, "Egg")
+    def test_get_value(self, target):
+        value = target.get_value(None, "Egg")
+        assert value == "Egg"
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, False)
+    def test_is_nonkey(self, target):
+        assert not target.is_nonkey
 
 
-class AfterCallbackTest(TestCase):
+class TestAfterCallback(object):
     "Tests for after_callback"
-    def setUp(self):
-        self.callback = DummyCallback("Spam")
-        self.field = fields.NonKeyField(after_callback=self.callback)
+    @pytest.fixture
+    def callback(self):
+        return DummyCallback("Spam")
 
-    def test_get_value(self):
-        value = self.field.get_value(None, None)
-        self.assertEqual(value, "Spam")
+    def target(self, callback):
+        from bpmappers.fields import NonKeyField
+        return NonKeyField(after_callback=callback)
+
+    def test_get_value(self, callback):
+        target = self.target(callback)
+        value = target.get_value(None, None)
+        assert value == "Spam"
 
 
-class ChoiceFieldTest(TestCase):
+class TestChoiceField(object):
     "Tests for ChoiceField class."
-    def setUp(self):
-        self.field = fields.ChoiceField(
-            choices={1: "Spam", 2: "Egg", 3: "Bacon"})
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import ChoiceField
+        return ChoiceField(choices={1: "Spam", 2: "Egg", 3: "Bacon"})
 
-    def test_get_value(self):
-        value1 = self.field.get_value(None, 1)
-        self.assertEqual(value1, "Spam")
-        value2 = self.field.get_value(None, 2)
-        self.assertEqual(value2, "Egg")
-        value3 = self.field.get_value(None, 3)
-        self.assertEqual(value3, "Bacon")
+    def test_get_value(self, target):
+        value1 = target.get_value(None, 1)
+        assert value1 == "Spam"
+        value2 = target.get_value(None, 2)
+        assert value2 == "Egg"
+        value3 = target.get_value(None, 3)
+        assert value3 == "Bacon"
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, False)
+    def test_is_nonkey(self, target):
+        assert not target.is_nonkey
 
 
 class DummyMapper(object):
@@ -93,150 +112,182 @@ class DummyMapper(object):
         return self.value
 
 
-class DelegateFieldTest(TestCase):
+class TestDelegateField(object):
     "Tests for DelegateField class."
-    def setUp(self):
-        self.field = fields.DelegateField(DummyMapper)
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import DelegateField
+        return DelegateField(DummyMapper)
 
-    def test_get_value(self):
-        value = self.field.get_value(
+    def test_get_value(self, target):
+        value = target.get_value(
             DummyMapper(None), {"Spam": "Egg"})
-        self.assertEqual(value, {"Spam": "Egg"})
+        assert value == {"Spam": "Egg"}
 
-    def test_invalid(self):
-        self.assertRaises(
-            InvalidDelegateException,
-            self.field.get_value,
-            DummyMapper(None),
-            None)
+    def test_invalid(self, target):
+        from bpmappers.exceptions import InvalidDelegateException
+        with pytest.raises(InvalidDelegateException):
+            target.get_value(DummyMapper(None), None)
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, False)
+    def test_is_nonkey(self, target):
+        assert not target.is_nonkey
 
 
-class DelegateFieldBeforeFilterTest(TestCase):
+class TestDelegateFieldBeforeFilter(object):
     "DelegateField._before_filter"
-    def setUp(self):
-        self.before_filter = DummyCallback({1: "Spam"})
-        self.field = fields.DelegateField(
-            DummyMapper, before_filter=self.before_filter)
+    @pytest.fixture
+    def before_filter(self):
+        return DummyCallback({1: "Spam"})
 
-    def test_get_value(self):
-        value = self.field.get_value(
-            DummyMapper(None), None)
-        self.assertEqual(value, self.before_filter.returns)
-        self.assertTrue(self.before_filter.called)
+    def target(self, before_filter):
+        from bpmappers.fields import DelegateField
+        return DelegateField(
+            DummyMapper, before_filter=before_filter)
+
+    def test_get_value(self, before_filter):
+        target = self.target(before_filter)
+        value = target.get_value(DummyMapper(None), None)
+        assert value == before_filter.returns
+        assert before_filter.called
 
 
-class DelegateFieldRequiredTest(TestCase):
+class TestDelegateFieldRequired(object):
     "DelegateField.required=False"
-    def setUp(self):
-        self.field = fields.DelegateField(
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import DelegateField
+        return DelegateField(
             DummyMapper, required=False)
 
-    def test_none_value(self):
-        value = self.field.get_value(DummyMapper(None), None)
-        self.assertEqual(value, None)
+    def test_none_value(self, target):
+        value = target.get_value(DummyMapper(None), None)
+        assert value is None
 
 
-class ListDelegateFieldTest(TestCase):
+class TestListDelegateField(object):
     "Test for ListDelegateField class."
-    def setUp(self):
-        self.field = fields.ListDelegateField(DummyMapper)
+    @pytest.fixture
+    def target(self):
+        from bpmappers.fields import ListDelegateField
+        return ListDelegateField(DummyMapper)
 
-    def test_get_value(self):
+    def test_get_value(self, target):
         # TODO: need more
-        value = self.field.get_value(
+        value = target.get_value(
             DummyMapper(None), [{"Spam": "Egg"}, {"Bacon": "Egg"}])
-        self.assertEqual(value, [{"Spam": "Egg"}, {"Bacon": "Egg"}])
+        assert value == [{"Spam": "Egg"}, {"Bacon": "Egg"}]
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, False)
+    def test_is_nonkey(self, target):
+        assert not target.is_nonkey
 
 
-class ListDelegateFieldFilterTest(TestCase):
+class TestListDelegateFieldFilter(object):
     "ListDelegateField.filter"
-    def setUp(self):
-        self.filter = DummyCallback([1, 2, 3])
-        self.field = fields.ListDelegateField(DummyMapper, filter=self.filter)
+    @pytest.fixture
+    def filter(self):
+        return DummyCallback([1, 2, 3])
 
-    def test_get_value(self):
-        value = self.field.get_value(
-            DummyMapper(None), [])
-        self.assertEqual(value, [1, 2, 3])
-        self.assertTrue(self.filter.called)
+    def target(self, filter):
+        from bpmappers.fields import ListDelegateField
+        return ListDelegateField(DummyMapper, filter=filter)
+
+    def test_get_value(self, filter):
+        target = self.target(filter)
+        value = target.get_value(DummyMapper(None), [])
+        assert value == [1, 2, 3]
+        assert filter.called
 
 
-class ListDelegateFieldAfterFilterTest(TestCase):
+class TestListDelegateFieldAfterFilter(object):
     "ListDelegateField.after_filter"
-    def setUp(self):
-        self.after_filter = DummyCallback("Spam")
-        self.field = fields.ListDelegateField(
-            DummyMapper,
-            after_filter=self.after_filter)
+    @pytest.fixture
+    def after_filter(self):
+        return DummyCallback("Spam")
 
-    def test_get_value(self):
-        value = self.field.get_value(
+    def target(self, after_filter):
+        from bpmappers.fields import ListDelegateField
+        return ListDelegateField(DummyMapper, after_filter=after_filter)
+
+    def test_get_value(self, after_filter):
+        target = self.target(after_filter)
+        value = target.get_value(
             DummyMapper(None), [1, 2, 3])
-        self.assertEqual(value, ["Spam", "Spam", "Spam"])
-        self.assertTrue(self.after_filter.called)
+        assert value == ["Spam", "Spam", "Spam"]
+        assert after_filter.called
 
 
-class NonKeyDelegateFieldTest(TestCase):
+class TestNonKeyDelegateField(object):
     "Test for NonKeyDelegateField class."
-    def setUp(self):
-        self.callback = DummyCallback({"Spam": "Egg"})
-        self.field = fields.NonKeyDelegateField(
-            DummyMapper, callback=self.callback)
+    @pytest.fixture
+    def callback(self):
+        return DummyCallback({"Spam": "Egg"})
 
-    def test_get_value(self):
-        value = self.field.get_value(DummyMapper(None), None)
-        self.assertEqual(value, self.callback.returns)
-        self.assertTrue(self.callback.called)
+    @pytest.fixture
+    def target(self, callback):
+        from bpmappers.fields import NonKeyDelegateField
+        return NonKeyDelegateField(DummyMapper, callback=callback)
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, True)
+    def test_get_value(self, callback):
+        target = self.target(callback)
+        value = target.get_value(DummyMapper(None), None)
+        assert value == callback.returns
+        assert callback.called
+
+    def test_is_nonkey(self, target):
+        assert target.is_nonkey
 
 
-class NonKeyListDelegateFieldTest(TestCase):
+class TestNonKeyListDelegateField(object):
     "Test for NonKeyListDelegateField class."
-    def setUp(self):
-        self.callback = DummyCallback({"Spam": "Egg"})
-        self.field = fields.NonKeyListDelegateField(
-            DummyMapper, callback=self.callback)
+    @pytest.fixture
+    def callback(self):
+        return DummyCallback({"Spam": "Egg"})
 
-    def test_get_value(self):
-        value = self.field.get_value(DummyMapper(None), None)
-        self.assertEqual(value, [self.callback.returns])
-        self.assertTrue(self.callback.called)
+    @pytest.fixture
+    def target(self, callback):
+        from bpmappers.fields import NonKeyListDelegateField
+        return NonKeyListDelegateField(DummyMapper, callback=callback)
 
-    def test_is_nonkey(self):
-        self.assertEqual(self.field.is_nonkey, True)
+    def test_get_value(self, callback):
+        target = self.target(callback)
+        value = target.get_value(DummyMapper(None), None)
+        assert value == [callback.returns]
+        assert callback.called
+
+    def test_is_nonkey(self, target):
+        assert target.is_nonkey
 
 
-class NonKeyListDelegateFieldFilterTest(TestCase):
+class TestNonKeyListDelegateFieldFilter(object):
     "NonKeyListDelegateField.filter"
-    def setUp(self):
-        self.filter = DummyCallback([1, 2, 3])
-        self.field = fields.NonKeyListDelegateField(
-            DummyMapper, filter=self.filter)
+    @pytest.fixture
+    def filter(self):
+        return DummyCallback([1, 2, 3])
 
-    def test_get_value(self):
-        value = self.field.get_value(DummyMapper(None), [{"Spam": "Egg"}])
-        self.assertEqual(value, self.filter.returns)
-        self.assertTrue(self.filter.called)
+    def target(self, filter):
+        from bpmappers.fields import NonKeyListDelegateField
+        return NonKeyListDelegateField(DummyMapper, filter=filter)
+
+    def test_get_value(self, filter):
+        target = self.target(filter)
+        value = target.get_value(DummyMapper(None), [{"Spam": "Egg"}])
+        assert value == filter.returns
+        assert filter.called
 
 
-class NonKeyListDelegateFieldAfterFilterTest(TestCase):
+class TestNonKeyListDelegateFieldAfterFilter(object):
     "NonKeyListDelegateField.after_filter"
-    def setUp(self):
-        self.after_filter = DummyCallback("Spam")
-        self.field = fields.NonKeyListDelegateField(
-            DummyMapper,
-            after_filter=self.after_filter)
+    @pytest.fixture
+    def after_filter(self):
+        return DummyCallback("Spam")
 
-    def test_get_value(self):
-        value = self.field.get_value(
+    def target(self, after_filter):
+        from bpmappers.fields import NonKeyListDelegateField
+        return NonKeyListDelegateField(DummyMapper, after_filter=after_filter)
+
+    def test_get_value(self, after_filter):
+        target = self.target(after_filter)
+        value = target.get_value(
             DummyMapper(None), [1, 2, 3])
-        self.assertEqual(value, ["Spam", "Spam", "Spam"])
-        self.assertTrue(self.after_filter.called)
+        assert value == ["Spam", "Spam", "Spam"]
+        assert after_filter.called

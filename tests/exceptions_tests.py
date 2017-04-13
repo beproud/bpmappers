@@ -1,9 +1,5 @@
-from .testing import TestCase
-
-from bpmappers import exceptions
-
-
-class DataErrorTest(TestCase):
+class TestDataError(object):
     def test_get_value(self):
+        from bpmappers import exceptions
         err = exceptions.DataError("spam")
-        self.assertEqual(str(err), "'spam'")
+        assert str(err) == "'spam'"

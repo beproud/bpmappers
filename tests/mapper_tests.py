@@ -1,52 +1,70 @@
-from .testing import TestCase, DummyObject, DummyCallback
+import pytest
+
+from .testing import DummyObject, DummyCallback
 
 from bpmappers import fields
-from bpmappers import mappers
 
 
-class ObjectToDictMappingTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestObjectToDictMapping(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
             bar = fields.RawField('bacon')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "egg",
             'bar': "ham",
-        })
+        }
+        assert result == expected
 
 
-class DictToDictMappingTest(TestCase):
-    def setUp(self):
-        self.obj = dict(spam="egg", bacon="ham")
+class TestDictToDictMapping(object):
+    @pytest.fixture
+    def data(self):
+        return dict(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
             bar = fields.RawField('bacon')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "egg",
             'bar': "ham",
-        })
+        }
+        assert result == expected
 
 
-class FieldFilterMethodTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestFieldFilterMethod(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
             bar = fields.RawField('bacon')
 
@@ -56,22 +74,28 @@ class FieldFilterMethodTest(TestCase):
             def filter_bar(self, value):
                 return "test"
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "EGG",
             'bar': "test",
-        })
+        }
+        assert result == expected
 
 
-class FieldAfterFilterMethodTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestFieldAfterFilterMethod(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
             bar = fields.RawField('bacon')
 
@@ -81,285 +105,374 @@ class FieldAfterFilterMethodTest(TestCase):
             def after_filter_bar(self, value):
                 return "test"
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "EGG",
             'bar': "test",
-        })
+        }
+        assert result == expected
 
 
-class DelegateMappingTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(
+class TestDelegateMapping(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(
             spam=DummyObject(name="spam egg"),
             bacon=DummyObject(name="bacon egg"))
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             "name --> egg_name"
             egg_name = fields.RawField('name')
 
-        class TestDelegate(mappers.Mapper):
+        class TestDelegate(Mapper):
             "spam -(TestMapper)-> spam_egg"
             spam_egg = fields.DelegateField(TestMapper, 'spam')
             bacon_egg = fields.DelegateField(TestMapper, 'bacon')
 
-        self.mapper_class = TestDelegate
+        return TestDelegate
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'spam_egg': {'egg_name': "spam egg"},
             'bacon_egg': {'egg_name': "bacon egg"},
-        })
+        }
+        assert result == expected
 
 
-class DelegateMappingAttachParentTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam=DummyObject(name="spam egg"))
+class TestDelegateMappingAttachParent(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam=DummyObject(name="spam egg"))
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             name = fields.RawField()
 
-        class TestDelegate(mappers.Mapper):
+        class TestDelegate(Mapper):
             foo = fields.DelegateField(TestMapper, 'spam', attach_parent=True)
 
-        self.mapper_class = TestDelegate
+        return TestDelegate
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'name': "spam egg",
-        })
+        }
+        assert result == expected
 
 
-class NonKeyDelegateMappingTest(TestCase):
-    def setUp(self):
-        self.obj = {}
+class TestNonKeyDelegateMapping(object):
+    @pytest.fixture
+    def data(self):
+        return {}
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
-        class TestDelegate(mappers.Mapper):
+        class TestDelegate(Mapper):
             bar = fields.NonKeyDelegateField(TestMapper)
 
             def filter_bar(self):
                 return dict(spam="egg")
 
-        self.mapper_class = TestDelegate
+        return TestDelegate
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'bar': {'foo': "egg"},
-        })
+        }
+        assert result == expected
 
 
-class InheritedMapperAddFieldTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestInheritedMapperAddField(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
         class InheritedMapper(TestMapper):
             bar = fields.RawField('bacon')
 
-        self.mapper_class = InheritedMapper
+        return InheritedMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "egg",
             'bar': "ham",
-        })
+        }
+        assert result == expected
 
 
-class InheritedMapperOverrideFieldTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestInheritedMapperOverrideField(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
         class InheritedMapper(TestMapper):
             foo = fields.RawField('bacon')
 
-        self.mapper_class = InheritedMapper
+        return InheritedMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "ham",
-        })
+        }
+        assert result == expected
 
 
-class DotAccessValueTest(TestCase):
-    def setUp(self):
-        self.obj = {"spam": {"egg": {"bacon": "ham"}}}
+class TestDotAccessValue(object):
+    @pytest.fixture
+    def data(self):
+        return {"spam": {"egg": {"bacon": "ham"}}}
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam.egg.bacon')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "ham",
-        })
+        }
+        assert result == expected
 
 
-class DotAccessCallableTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(
+class TestDotAccessCallable(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(
             spam=DummyCallback(
                 DummyObject(egg=DummyCallback('bacon'))
             )
         )
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam.egg')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "bacon",
-        })
+        }
+        assert result == expected
 
 
-class OptionsParameterTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject()
+class TestOptionsParameter(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject()
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             spam = fields.NonKeyField()
 
             def filter_spam(self):
                 return self.options.get('bacon')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj, bacon="egg")
+    def test_mapping(self, target, data):
+        mapper = target(data, bacon="egg")
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'spam': "egg",
-        })
+        }
+        assert result == expected
 
 
-class MapperAttachMethodTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham")
+class TestMapperAttachMethod(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
             def attach_foo(self, parsed, value):
                 parsed["bar"] = value
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'bar': "egg",
-        })
+        }
+        assert result == expected
 
 
-class MapperCallableValueTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam=DummyCallback("egg"))
+class TestMapperCallableValue(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam=DummyCallback("egg"))
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "egg",
-        })
+        }
+        assert result == expected
 
 
-class MapperListValueTest(TestCase):
-    def setUp(self):
-        self.obj = [DummyObject(spam="egg")]
+class TestMapperListValue(object):
+    @pytest.fixture
+    def data(self):
+        return [DummyObject(spam="egg")]
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'foo': "egg",
-        })
+        }
+        assert result == expected
 
 
-class MapperOrderMethodTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg", bacon="ham", knights="ni")
+class TestMapperOrderMethod(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg", bacon="ham", knights="ni")
 
-        class TestMapperBase(mappers.Mapper):
+    @pytest.fixture
+    def base(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapperBase(Mapper):
             spam = fields.RawField()
             bacon = fields.RawField()
             knights = fields.RawField()
 
-        class TestOrderedA(TestMapperBase):
+        return TestMapperBase
+
+    @pytest.fixture
+    def target_a(self, base):
+
+        class TestOrderedA(base):
             def order(self, parsed):
                 parsed.keyOrder = ['spam', 'bacon', 'knights']
 
-        class TestOrderedB(TestMapperBase):
+        return TestOrderedA
+
+    @pytest.fixture
+    def target_b(self, base):
+
+        class TestOrderedB(base):
             def order(self, parsed):
                 parsed.keyOrder = ['bacon', 'knights', 'spam']
 
-        self.mapper_class_a = TestOrderedA
-        self.mapper_class_b = TestOrderedB
+        return TestOrderedB
 
-    def test_mapping_a(self):
-        mapper = self.mapper_class_a(self.obj)
+    def test_mapping_a(self, target_a, data):
+        mapper = target_a(data)
         result = mapper.as_dict()
-        self.assertEqual(list(result.keys()), ['spam', 'bacon', 'knights'])
+        expected = ['spam', 'bacon', 'knights']
+        assert list(result.keys()) == expected
 
-    def test_mapping_b(self):
-        mapper = self.mapper_class_b(self.obj)
+    def test_mapping_b(self, target_b, data):
+        mapper = target_b(data)
         result = mapper.as_dict()
-        self.assertEqual(list(result.keys()), ['bacon', 'knights', 'spam'])
+        expected = ['bacon', 'knights', 'spam']
+        assert list(result.keys()) == expected
 
 
-class MapperKeyNameMethodTest(TestCase):
-    def setUp(self):
-        self.obj = DummyObject(spam="egg")
+class TestMapperKeyNameMethod(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(spam="egg")
 
-        class TestMapper(mappers.Mapper):
+    @pytest.fixture
+    def target(self):
+        from bpmappers.mappers import Mapper
+
+        class TestMapper(Mapper):
             foo = fields.RawField('spam')
 
             def key_name(self, name, value, field):
                 return 'bar'
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'bar': "egg",
-        })
+        }
+        assert result == expected

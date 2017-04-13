@@ -3,6 +3,7 @@
 *.orig
 .tox
 .coverage
+.cache
 build
 dist
 venv
