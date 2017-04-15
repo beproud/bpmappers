@@ -1,46 +1,37 @@
 from datetime import datetime, date, time
 
-from . import testing_django
+import pytest
 
-from .testing import TestCase, DummyObject, SkipTest
+from . import testing_django
+from .testing import DummyObject
 
 from bpmappers import fields
-from bpmappers import mappers
-
-models = None
-djangomodel = None
 
 
-def setUpModule():
-    if not testing_django.LIB_ENABLED_DJANGO:
-        raise SkipTest("Django is not installed.")
-    testing_django.initialize()
-    # replace models
-    global models
-    from django.db import models as django_models
-    models = django_models
-    # replace djangomodel
-    global djangomodel
-    from bpmappers import djangomodel as bpmappers_djangomodel
-    djangomodel = bpmappers_djangomodel
+class TestDjangoFileField(object):
+    @pytest.fixture
+    def data(self):
+        return DummyObject(url="egg")
+
+    @pytest.fixture
+    def target(self):
+        from bpmappers.djangomodel import DjangoFileField
+        return DjangoFileField()
+
+    def test_url(self, target, data):
+        value = target.get_value(None, data)
+        assert value == "egg"
+
+    def test_none(self, target):
+        value = target.get_value(None, None)
+        assert value is None
 
 
-class DjangoFileFieldTest(TestCase):
-    def setUp(self):
-        self.field = djangomodel.DjangoFileField()
-        self.obj = DummyObject(url="egg")
+class TestModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
 
-    def test_url(self):
-        value = self.field.get_value(None, self.obj)
-        self.assertEqual(value, "egg")
-
-    def test_none(self):
-        value = self.field.get_value(None, None)
-        self.assertIsNone(value)
-
-
-class ModelMapperTest(TestCase):
-    def setUp(self):
         class DummyModel(models.Model):
             char_field = models.CharField(max_length=30)
             text_field = models.TextField()
@@ -53,7 +44,10 @@ class ModelMapperTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(
+        return DummyModel
+
+    def data(self, model):
+        return model(
             id=1,
             char_field="egg",
             text_field="ham",
@@ -63,16 +57,21 @@ class ModelMapperTest(TestCase):
             time_field=time(10, 0, 0),
             boolean_field=True)
 
-        class TestMapper(djangomodel.ModelMapper):
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'char_field': "egg",
             'text_field': "ham",
@@ -81,11 +80,15 @@ class ModelMapperTest(TestCase):
             'date_field': date(2012, 4, 1),
             'time_field': time(10, 0, 0),
             'boolean_field': True,
-        })
+        }
+        assert result == expected
 
 
-class MetaFieldsTest(TestCase):
-    def setUp(self):
+class TestMetaFields(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -93,26 +96,38 @@ class MetaFieldsTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        return DummyModel
 
-        class TestMapper(djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg", bacon="ham")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
                 fields = ['spam', 'bacon']
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'spam': "egg",
             'bacon': "ham",
-        })
+        }
+        assert result == expected
 
 
-class MetaExcludeTest(TestCase):
-    def setUp(self):
+class TestMetaExclude(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -120,25 +135,37 @@ class MetaExcludeTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        return DummyModel
 
-        class TestMapper(djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg", bacon="ham")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
                 exclude = ['id', 'bacon']
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'spam': "egg",
-        })
+        }
+        assert result == expected
 
 
-class AddFieldTest(TestCase):
-    def setUp(self):
+class TestAddField(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -146,29 +173,41 @@ class AddFieldTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        return DummyModel
 
-        class TestMapper(djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg", bacon="ham")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             knight = fields.StubField("ni")
 
             class Meta:
-                model = DummyModel
+                model = model_class
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'spam': "egg",
             'bacon': "ham",
             'knight': "ni",
-        })
+        }
+        assert result == expected
 
 
-class InheritedModelMapperOverrideFieldTest(TestCase):
-    def setUp(self):
+class TestInheritedModelMapperOverrideField(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -176,28 +215,40 @@ class InheritedModelMapperOverrideFieldTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        return DummyModel
 
-        class TestMapper(djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg", bacon="ham")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             spam = fields.StubField("knight")
 
             class Meta:
-                model = DummyModel
+                model = model_class
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'spam': "knight",
             'bacon': "ham",
-        })
+        }
+        assert result == expected
 
 
-class InheritedModelMapperTest(TestCase):
-    def setUp(self):
+class TestInheritedModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -205,62 +256,87 @@ class InheritedModelMapperTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
+        return DummyModel
 
-        class TestMapper(djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg", bacon="ham")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
 
         class InheritedMapper(TestMapper):
             class Meta(TestMapper.Meta):
                 pass
 
-        self.mapper_class = InheritedMapper
+        return InheritedMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'spam': "egg",
             'bacon': "ham",
-        })
+        }
+        assert result == expected
 
 
-class CustomMapperFieldsTest(TestCase):
-    def setUp(self):
+class TestCustomMapperFields(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg")
+        return DummyModel
+
+    def data(self, model):
+        return model(id=1, spam="egg")
+
+    def target(self, model_class):
+        from django.db import models
+        from bpmappers.djangomodel import ModelMapper
 
         class CustomMapperField(fields.RawField):
             def as_value(self, mapper, value):
                 return "<%s>" % value
 
-        class TestMapper(djangomodel.ModelMapper):
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
                 mapper_fields = {
                     models.CharField: CustomMapperField,
                 }
 
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'spam': "<egg>",
-        })
+        }
+        assert result == expected
 
 
-class CreateModelMapperTest(TestCase):
-    def setUp(self):
+class TestCreateModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
             bacon = models.CharField(max_length=30)
@@ -268,179 +344,246 @@ class CreateModelMapperTest(TestCase):
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg", bacon="ham")
-        self.model_class = DummyModel
+        return DummyModel
 
-    def test_create_mapper(self):
-        mapper_class = djangomodel.create_model_mapper(self.model_class)
-        self.assertEqual(len(mapper_class._meta.fields), 3)
-        self.assertTrue('id' in mapper_class._meta.fields)
-        self.assertTrue('spam' in mapper_class._meta.fields)
-        self.assertTrue('bacon' in mapper_class._meta.fields)
+    @pytest.fixture
+    def target(self):
+        from bpmappers.djangomodel import create_model_mapper
+        return create_model_mapper
+
+    def test_create_mapper(self, target, model):
+        mapper_class = target(model)
+        assert len(mapper_class._meta.fields) == 3
+        assert 'id' in mapper_class._meta.fields
+        assert 'spam' in mapper_class._meta.fields
+        assert 'bacon' in mapper_class._meta.fields
 
 
-class ForeignKeyFieldModelMapperTest(TestCase):
-    def setUp(self):
+class TestForeignKeyFieldModelMapper(object):
+    @pytest.fixture
+    def child_model(self):
+        from django.db import models
+
         class ChildModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
+        return ChildModel
+
+    def parent_model(self, child_model):
+        from django.db import models
+
         class ParentModel(models.Model):
-            bacon = models.ForeignKey(ChildModel)
+            bacon = models.ForeignKey(child_model)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class TestMapper(djangomodel.ModelMapper):
+        return ParentModel
+
+    def data(self, parent_model, child_model):
+        return parent_model(
+            id=1,
+            bacon=child_model(id=1, spam="egg"))
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = ParentModel
+                model = model_class
 
-        self.child = ChildModel(id=1, spam="egg")
-        self.parent = ParentModel(id=1, bacon=self.child)
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.parent)
+    def test_mapping(self, child_model):
+        parent_model = self.parent_model(child_model)
+        target = self.target(parent_model)
+        data = self.data(parent_model, child_model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'bacon': {
                 'id': 1,
                 'spam': "egg",
             },
-        })
+        }
+        assert result == expected
 
 
-class ForeignKeyFieldNullValueTest(TestCase):
-    def setUp(self):
+class TestForeignKeyFieldNullValue(object):
+    @pytest.fixture
+    def child_model(self):
+        from django.db import models
+
         class ChildModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
+        return ChildModel
+
+    def parent_model(self, child_model):
+        from django.db import models
+
         class ParentModel(models.Model):
-            bacon = models.ForeignKey(ChildModel, null=True, blank=True)
+            bacon = models.ForeignKey(child_model, null=True, blank=True)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class TestMapper(djangomodel.ModelMapper):
+        return ParentModel
+
+    def data(self, parent_model):
+        return parent_model(id=1, bacon=None)
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = ParentModel
+                model = model_class
 
-        self.parent = ParentModel(id=1, bacon=None)
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.parent)
+    def test_mapping(self, child_model):
+        parent_model = self.parent_model(child_model)
+        target = self.target(parent_model)
+        data = self.data(parent_model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'bacon': None,
-        })
+        }
+        assert result == expected
 
 
-class ForeignKeySelfReferenceTest(TestCase):
-    def setUp(self):
+class TestForeignKeySelfReference(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class DummyModel(models.Model):
             spam = models.ForeignKey("DummyModel", null=True, blank=True)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class TestMapper(djangomodel.ModelMapper):
+        return DummyModel
+
+    def data(self, model):
+        return model(id=1, spam=model(id=2))
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = DummyModel
+                model = model_class
 
-        self.obj = DummyModel(id=1)
-        self.obj.spam = DummyModel(id=2)
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
-        })
+        }
+        assert result == expected
 
 
-class OneToOneFieldModelMappingTest(TestCase):
-    def setUp(self):
+class TestOneToOneFieldModelMapping(object):
+    @pytest.fixture
+    def child_model(self):
+        from django.db import models
+
         class ChildModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
+        return ChildModel
+
+    def parent_model(self, child_model):
+        from django.db import models
+
         class ParentModel(models.Model):
-            bacon = models.OneToOneField(ChildModel)
+            bacon = models.OneToOneField(child_model)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class TestMapper(djangomodel.ModelMapper):
+        return ParentModel
+
+    def data(self, parent_model, child_model):
+        return parent_model(id=1, bacon=child_model(id=1, spam="egg"))
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
             class Meta:
-                model = ParentModel
+                model = model_class
 
-        child = ChildModel(id=1, spam="egg")
-        self.parent = ParentModel(id=1, bacon=child)
-        self.mapper_class = TestMapper
+        return TestMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.parent)
+    def test_mapping(self, child_model):
+        parent_model = self.parent_model(child_model)
+        target = self.target(parent_model)
+        data = self.data(parent_model, child_model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'bacon': {
                 'id': 1,
                 'spam': "egg",
             },
-        })
+        }
+        assert result == expected
 
 
-class ManyToManyFieldModelMapperTest(TestCase):
-    def setUp(self):
-        class ParentModel(models.Model):
-            bacon = models.ManyToManyField('ChildModel')
+class TestManyToManyFieldModelMapper(object):
+    @pytest.fixture
+    def child_model(self):
+        from django_app.models import M2M_ChildModel
+        return M2M_ChildModel
 
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
+    @pytest.fixture
+    def parent_model(self):
+        from django_app.models import M2M_ParentModel
+        return M2M_ParentModel
 
-        testing_django.register_model(ParentModel)
-
-        class ChildModel(models.Model):
-            spam = models.CharField(max_length=30)
-
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
-
-        testing_django.register_model(ChildModel)
-
-        testing_django._setup_db()
-        testing_django.create_table(ChildModel)
-        testing_django.create_table(ParentModel)
-
-        class TestMapper(djangomodel.ModelMapper):
-            class Meta:
-                model = ParentModel
-
-        child = ChildModel(id=1, spam="egg")
+    @pytest.fixture
+    def data(self, parent_model, child_model):
+        child = child_model(id=1, spam="egg")
         child.save()
-        self.parent = ParentModel(id=1)
-        self.parent.save()
-        self.parent.bacon.add(child)
-        self.mapper_class = TestMapper
+        parent = parent_model(id=1)
+        parent.save()
+        parent.bacon.add(child)
+        return parent
 
-    def tearDown(self):
-        testing_django._teardown_db()
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.parent)
+        class TestMapper(ModelMapper):
+            class Meta:
+                model = model_class
+
+        return TestMapper
+
+    def test_mapping(self, parent_model, data):
+        target = self.target(parent_model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'bacon': [
                 {
@@ -448,63 +591,54 @@ class ManyToManyFieldModelMapperTest(TestCase):
                     'spam': "egg",
                 }
             ],
-        })
+        }
+        assert result == expected
 
 
-class ManyToManyFieldThroughModelTest(TestCase):
-    def setUp(self):
-        class ParentModel(models.Model):
-            bacon = models.ManyToManyField('ChildModel', through="ThroughModel")
+pytest.mark.django_db(TestManyToManyFieldModelMapper)
 
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
 
-        testing_django.register_model(ParentModel)
+class TestManyToManyFieldThroughModel(object):
+    @pytest.fixture
+    def child_model(self):
+        from django_app.models import M2M_Through_ChildModel
+        return M2M_Through_ChildModel
 
-        class ChildModel(models.Model):
-            spam = models.CharField(max_length=30)
+    @pytest.fixture
+    def parent_model(self):
+        from django_app.models import M2M_Through_ParentModel
+        return M2M_Through_ParentModel
 
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
+    @pytest.fixture
+    def through_model(self):
+        from django_app.models import M2M_ThroughModel
+        return M2M_ThroughModel
 
-        testing_django.register_model(ChildModel)
-
-        class ThroughModel(models.Model):
-            child = models.ForeignKey(ChildModel)
-            parent = models.ForeignKey(ParentModel)
-            knight = models.CharField(max_length=30)
-
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
-
-        testing_django.register_model(ThroughModel)
-
-        testing_django._setup_db()
-        testing_django.create_table(ChildModel)
-        testing_django.create_table(ParentModel)
-        if testing_django.get_django_version() < (1, 2):
-            testing_django.create_table(ThroughModel)
-
-        class TestMapper(djangomodel.ModelMapper):
-            class Meta:
-                model = ThroughModel
-
-        child = ChildModel(id=1, spam="egg")
+    @pytest.fixture
+    def data(self, parent_model, child_model, through_model):
+        child = child_model(id=1, spam="egg")
         child.save()
-        parent = ParentModel(id=1)
+        parent = parent_model(id=1)
         parent.save()
-        self.through = ThroughModel(
+        through = through_model(
             id=1, child=child, parent=parent, knight="ni")
-        self.through.save()
-        self.mapper_class = TestMapper
+        through.save()
+        return through
 
-    def tearDown(self):
-        testing_django._teardown_db()
+    @pytest.fixture
+    def target(self, through_model):
+        from bpmappers.djangomodel import ModelMapper
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.through)
+        class TestMapper(ModelMapper):
+            class Meta:
+                model = through_model
+
+        return TestMapper
+
+    def test_mapping(self, target, data):
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
             'id': 1,
             'knight': "ni",
             'child': {
@@ -518,118 +652,168 @@ class ManyToManyFieldThroughModelTest(TestCase):
                     'spam': "egg",
                 }],
             },
-        })
+        }
+        assert result == expected
 
 
-class CustomFieldTest(TestCase):
-    def setUp(self):
+pytest.mark.django_db(TestManyToManyFieldThroughModel)
+
+
+class TestCustomField(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
         class CustomField(models.Field):
             pass
 
-        class DummyModel(models.Model):
-            spam = CustomField(max_length=30)
-
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
-
-        class TestMapper(djangomodel.ModelMapper):
-            class Meta:
-                model = DummyModel
-
-        self.obj = DummyModel(id=1, spam="egg")
-        self.mapper_class = TestMapper
-
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
-        result = mapper.as_dict()
-        self.assertEqual(result, {
-            'id': 1,
-            'spam': "egg",
-        })
-
-
-class FileFieldModelMapperTest(TestCase):
-    def setUp(self):
-        class DummyModel(models.Model):
-            spam = models.FileField(upload_to='./')
-
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
-
-        class TestMapper(djangomodel.ModelMapper):
-            class Meta:
-                model = DummyModel
-
-        self.obj = DummyModel(id=1)
-        # django 1.0.x is not able to set name attribute.
-        if testing_django.get_django_version() < (1, 1):
-            self.obj.spam._name = 'egg.txt'
-        else:
-            self.obj.spam.name = 'egg.txt'
-        self.mapper_class = TestMapper
-
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
-        result = mapper.as_dict()
-        self.assertEqual(result, {
-            'id': 1,
-            'spam': "egg.txt",
-        })
-
-
-class ImageFieldModelMapperTest(TestCase):
-    def setUp(self):
-        class DummyModel(models.Model):
-            spam = models.ImageField(upload_to='./')
-
-            class Meta:
-                app_label = testing_django.lower_class_name(self)
-
-        class TestMapper(djangomodel.ModelMapper):
-            class Meta:
-                model = DummyModel
-
-        self.obj = DummyModel(id=1)
-        # django 1.0.x is not able to set name attribute.
-        if testing_django.get_django_version() < (1, 1):
-            self.obj.spam._name = 'egg.jpg'
-        else:
-            self.obj.spam.name = 'egg.jpg'
-        self.mapper_class = TestMapper
-
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
-        result = mapper.as_dict()
-        self.assertEqual(result, {
-            'id': 1,
-            'spam': "egg.jpg",
-        })
-
-
-class MixinModelMapperTest(TestCase):
-    def setUp(self):
         class DummyModel(models.Model):
             spam = models.CharField(max_length=30)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
 
-        class TestMapper(mappers.Mapper):
-            knight = fields.StubField("ni")
+        return DummyModel
 
-        class MixinMapper(TestMapper, djangomodel.ModelMapper):
+    def data(self, model):
+        return model(id=1, spam="egg")
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
+            class Meta:
+                model = model_class
+
+        return TestMapper
+
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
+        result = mapper.as_dict()
+        expected = {
+            'id': 1,
+            'spam': "egg",
+        }
+        assert result == expected
+
+
+class TestFileFieldModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
+        class DummyModel(models.Model):
+            spam = models.FileField(upload_to='./')
 
             class Meta:
-                model = DummyModel
+                app_label = testing_django.lower_class_name(self)
 
-        self.obj = DummyModel(id=1, spam="egg")
-        self.mapper_class = MixinMapper
+        return DummyModel
 
-    def test_mapping(self):
-        mapper = self.mapper_class(self.obj)
+    def data(self, model):
+        obj = model(id=1)
+        obj.spam.name = 'egg.txt'
+        return obj
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
+            class Meta:
+                model = model_class
+
+        return TestMapper
+
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
         result = mapper.as_dict()
-        self.assertEqual(result, {
+        expected = {
+            'id': 1,
+            'spam': "egg.txt",
+        }
+        assert result == expected
+
+
+class TestImageFieldModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
+        class DummyModel(models.Model):
+            spam = models.ImageField(upload_to='./')
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        return DummyModel
+
+    def data(self, model):
+        obj = model(id=1)
+        obj.spam.name = 'egg.jpg'
+        return obj
+
+    def target(self, model_class):
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(ModelMapper):
+            class Meta:
+                model = model_class
+
+        return TestMapper
+
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
+        result = mapper.as_dict()
+        expected = {
+            'id': 1,
+            'spam': "egg.jpg",
+        }
+        assert result == expected
+
+
+class TestMixinModelMapper(object):
+    @pytest.fixture
+    def model(self):
+        from django.db import models
+
+        class DummyModel(models.Model):
+            spam = models.CharField(max_length=30)
+
+            class Meta:
+                app_label = testing_django.lower_class_name(self)
+
+        return DummyModel
+
+    def target(self, model_class):
+        from bpmappers.mappers import Mapper
+        from bpmappers.djangomodel import ModelMapper
+
+        class TestMapper(Mapper):
+            knight = fields.StubField("ni")
+
+        class MixinMapper(TestMapper, ModelMapper):
+            class Meta:
+                model = model_class
+
+        return MixinMapper
+
+    def data(self, model):
+        return model(id=1, spam="egg")
+
+    def test_mapping(self, model):
+        data = self.data(model)
+        target = self.target(model)
+        mapper = target(data)
+        result = mapper.as_dict()
+        expected = {
             'id': 1,
             'spam': "egg",
             'knight': "ni",
-        })
+        }
+        assert result == expected
