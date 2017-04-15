@@ -16,6 +16,7 @@ class DjangoFileField(Field):
     def as_value(self, mapper, value):
         return value and value.url or None
 
+
 DEFAULT_MAPPER_FIELD = RawField
 
 # Djangoのフィールドに対応したMapperField
