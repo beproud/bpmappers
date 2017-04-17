@@ -8,7 +8,7 @@ from .testing import DummyObject
 from bpmappers import fields
 
 
-class TestDjangoFileField(object):
+class TestDjangoFileField:
     @pytest.fixture
     def data(self):
         return DummyObject(url="egg")
@@ -27,7 +27,7 @@ class TestDjangoFileField(object):
         assert value is None
 
 
-class TestModelMapper(object):
+class TestModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -84,7 +84,7 @@ class TestModelMapper(object):
         assert result == expected
 
 
-class TestMetaFields(object):
+class TestMetaFields:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -123,7 +123,7 @@ class TestMetaFields(object):
         assert result == expected
 
 
-class TestMetaExclude(object):
+class TestMetaExclude:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -161,7 +161,7 @@ class TestMetaExclude(object):
         assert result == expected
 
 
-class TestAddField(object):
+class TestAddField:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -203,7 +203,7 @@ class TestAddField(object):
         assert result == expected
 
 
-class TestInheritedModelMapperOverrideField(object):
+class TestInheritedModelMapperOverrideField:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -244,7 +244,7 @@ class TestInheritedModelMapperOverrideField(object):
         assert result == expected
 
 
-class TestInheritedModelMapper(object):
+class TestInheritedModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -287,7 +287,7 @@ class TestInheritedModelMapper(object):
         assert result == expected
 
 
-class TestCustomMapperFields(object):
+class TestCustomMapperFields:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -332,7 +332,7 @@ class TestCustomMapperFields(object):
         assert result == expected
 
 
-class TestCreateModelMapper(object):
+class TestCreateModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -359,7 +359,7 @@ class TestCreateModelMapper(object):
         assert 'bacon' in mapper_class._meta.fields
 
 
-class TestForeignKeyFieldModelMapper(object):
+class TestForeignKeyFieldModelMapper:
     @pytest.fixture
     def child_model(self):
         from django.db import models
@@ -413,7 +413,7 @@ class TestForeignKeyFieldModelMapper(object):
         assert result == expected
 
 
-class TestForeignKeyFieldNullValue(object):
+class TestForeignKeyFieldNullValue:
     @pytest.fixture
     def child_model(self):
         from django.db import models
@@ -462,7 +462,7 @@ class TestForeignKeyFieldNullValue(object):
         assert result == expected
 
 
-class TestForeignKeySelfReference(object):
+class TestForeignKeySelfReference:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -498,7 +498,7 @@ class TestForeignKeySelfReference(object):
         assert result == expected
 
 
-class TestOneToOneFieldModelMapping(object):
+class TestOneToOneFieldModelMapping:
     @pytest.fixture
     def child_model(self):
         from django.db import models
@@ -550,7 +550,8 @@ class TestOneToOneFieldModelMapping(object):
         assert result == expected
 
 
-class TestManyToManyFieldModelMapper(object):
+@pytest.mark.django_db
+class TestManyToManyFieldModelMapper:
     @pytest.fixture
     def child_model(self):
         from django_app.models import M2M_ChildModel
@@ -595,10 +596,8 @@ class TestManyToManyFieldModelMapper(object):
         assert result == expected
 
 
-pytest.mark.django_db(TestManyToManyFieldModelMapper)
-
-
-class TestManyToManyFieldThroughModel(object):
+@pytest.mark.django_db
+class TestManyToManyFieldThroughModel:
     @pytest.fixture
     def child_model(self):
         from django_app.models import M2M_Through_ChildModel
@@ -656,10 +655,9 @@ class TestManyToManyFieldThroughModel(object):
         assert result == expected
 
 
-pytest.mark.django_db(TestManyToManyFieldThroughModel)
 
 
-class TestCustomField(object):
+class TestCustomField:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -699,7 +697,7 @@ class TestCustomField(object):
         assert result == expected
 
 
-class TestFileFieldModelMapper(object):
+class TestFileFieldModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -738,7 +736,7 @@ class TestFileFieldModelMapper(object):
         assert result == expected
 
 
-class TestImageFieldModelMapper(object):
+class TestImageFieldModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models
@@ -777,7 +775,7 @@ class TestImageFieldModelMapper(object):
         assert result == expected
 
 
-class TestMixinModelMapper(object):
+class TestMixinModelMapper:
     @pytest.fixture
     def model(self):
         from django.db import models

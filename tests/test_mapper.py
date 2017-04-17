@@ -5,7 +5,7 @@ from .testing import DummyObject, DummyCallback
 from bpmappers import fields
 
 
-class TestObjectToDictMapping(object):
+class TestObjectToDictMapping:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -30,7 +30,7 @@ class TestObjectToDictMapping(object):
         assert result == expected
 
 
-class TestDictToDictMapping(object):
+class TestDictToDictMapping:
     @pytest.fixture
     def data(self):
         return dict(spam="egg", bacon="ham")
@@ -55,7 +55,7 @@ class TestDictToDictMapping(object):
         assert result == expected
 
 
-class TestFieldFilterMethod(object):
+class TestFieldFilterMethod:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -86,7 +86,7 @@ class TestFieldFilterMethod(object):
         assert result == expected
 
 
-class TestFieldAfterFilterMethod(object):
+class TestFieldAfterFilterMethod:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -117,7 +117,7 @@ class TestFieldAfterFilterMethod(object):
         assert result == expected
 
 
-class TestDelegateMapping(object):
+class TestDelegateMapping:
     @pytest.fixture
     def data(self):
         return DummyObject(
@@ -149,7 +149,7 @@ class TestDelegateMapping(object):
         assert result == expected
 
 
-class TestDelegateMappingAttachParent(object):
+class TestDelegateMappingAttachParent:
     @pytest.fixture
     def data(self):
         return DummyObject(spam=DummyObject(name="spam egg"))
@@ -175,7 +175,7 @@ class TestDelegateMappingAttachParent(object):
         assert result == expected
 
 
-class TestNonKeyDelegateMapping(object):
+class TestNonKeyDelegateMapping:
     @pytest.fixture
     def data(self):
         return {}
@@ -204,7 +204,7 @@ class TestNonKeyDelegateMapping(object):
         assert result == expected
 
 
-class TestInheritedMapperAddField(object):
+class TestInheritedMapperAddField:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -231,7 +231,7 @@ class TestInheritedMapperAddField(object):
         assert result == expected
 
 
-class TestInheritedMapperOverrideField(object):
+class TestInheritedMapperOverrideField:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -257,7 +257,7 @@ class TestInheritedMapperOverrideField(object):
         assert result == expected
 
 
-class TestDotAccessValue(object):
+class TestDotAccessValue:
     @pytest.fixture
     def data(self):
         return {"spam": {"egg": {"bacon": "ham"}}}
@@ -280,7 +280,7 @@ class TestDotAccessValue(object):
         assert result == expected
 
 
-class TestDotAccessCallable(object):
+class TestDotAccessCallable:
     @pytest.fixture
     def data(self):
         return DummyObject(
@@ -307,7 +307,7 @@ class TestDotAccessCallable(object):
         assert result == expected
 
 
-class TestOptionsParameter(object):
+class TestOptionsParameter:
     @pytest.fixture
     def data(self):
         return DummyObject()
@@ -333,7 +333,7 @@ class TestOptionsParameter(object):
         assert result == expected
 
 
-class TestMapperAttachMethod(object):
+class TestMapperAttachMethod:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham")
@@ -359,7 +359,7 @@ class TestMapperAttachMethod(object):
         assert result == expected
 
 
-class TestMapperCallableValue(object):
+class TestMapperCallableValue:
     @pytest.fixture
     def data(self):
         return DummyObject(spam=DummyCallback("egg"))
@@ -382,7 +382,7 @@ class TestMapperCallableValue(object):
         assert result == expected
 
 
-class TestMapperListValue(object):
+class TestMapperListValue:
     @pytest.fixture
     def data(self):
         return [DummyObject(spam="egg")]
@@ -405,7 +405,7 @@ class TestMapperListValue(object):
         assert result == expected
 
 
-class TestMapperOrderMethod(object):
+class TestMapperOrderMethod:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg", bacon="ham", knights="ni")
@@ -452,7 +452,7 @@ class TestMapperOrderMethod(object):
         assert list(result.keys()) == expected
 
 
-class TestMapperKeyNameMethod(object):
+class TestMapperKeyNameMethod:
     @pytest.fixture
     def data(self):
         return DummyObject(spam="egg")

@@ -3,7 +3,7 @@ import pytest
 from .testing import DummyCallback
 
 
-class TestBaseField(object):
+class TestBaseField:
     "Tests for BaseField class."
     @pytest.fixture
     def target(self):
@@ -17,7 +17,7 @@ class TestBaseField(object):
             target.as_value(None, None)
 
 
-class TestNonKeyField(object):
+class TestNonKeyField:
     "Tests for NonKeyField class."
     @pytest.fixture
     def callback(self):
@@ -38,7 +38,7 @@ class TestNonKeyField(object):
         assert target.is_nonkey
 
 
-class TestStubField(object):
+class TestStubField:
     "Tests for StubField class."
     @pytest.fixture
     def target(self):
@@ -53,7 +53,7 @@ class TestStubField(object):
         assert target.is_nonkey
 
 
-class TestRawField(object):
+class TestRawField:
     "Tests for RawField class."
     @pytest.fixture
     def target(self):
@@ -68,7 +68,7 @@ class TestRawField(object):
         assert not target.is_nonkey
 
 
-class TestAfterCallback(object):
+class TestAfterCallback:
     "Tests for after_callback"
     @pytest.fixture
     def callback(self):
@@ -84,7 +84,7 @@ class TestAfterCallback(object):
         assert value == "Spam"
 
 
-class TestChoiceField(object):
+class TestChoiceField:
     "Tests for ChoiceField class."
     @pytest.fixture
     def target(self):
@@ -103,7 +103,7 @@ class TestChoiceField(object):
         assert not target.is_nonkey
 
 
-class DummyMapper(object):
+class DummyMapper:
     def __init__(self, value, **options):
         self.value = value
         self.options = options
@@ -112,7 +112,7 @@ class DummyMapper(object):
         return self.value
 
 
-class TestDelegateField(object):
+class TestDelegateField:
     "Tests for DelegateField class."
     @pytest.fixture
     def target(self):
@@ -133,7 +133,7 @@ class TestDelegateField(object):
         assert not target.is_nonkey
 
 
-class TestDelegateFieldBeforeFilter(object):
+class TestDelegateFieldBeforeFilter:
     "DelegateField._before_filter"
     @pytest.fixture
     def before_filter(self):
@@ -151,7 +151,7 @@ class TestDelegateFieldBeforeFilter(object):
         assert before_filter.called
 
 
-class TestDelegateFieldRequired(object):
+class TestDelegateFieldRequired:
     "DelegateField.required=False"
     @pytest.fixture
     def target(self):
@@ -164,7 +164,7 @@ class TestDelegateFieldRequired(object):
         assert value is None
 
 
-class TestListDelegateField(object):
+class TestListDelegateField:
     "Test for ListDelegateField class."
     @pytest.fixture
     def target(self):
@@ -181,7 +181,7 @@ class TestListDelegateField(object):
         assert not target.is_nonkey
 
 
-class TestListDelegateFieldFilter(object):
+class TestListDelegateFieldFilter:
     "ListDelegateField.filter"
     @pytest.fixture
     def filter(self):
@@ -198,7 +198,7 @@ class TestListDelegateFieldFilter(object):
         assert filter.called
 
 
-class TestListDelegateFieldAfterFilter(object):
+class TestListDelegateFieldAfterFilter:
     "ListDelegateField.after_filter"
     @pytest.fixture
     def after_filter(self):
@@ -216,7 +216,7 @@ class TestListDelegateFieldAfterFilter(object):
         assert after_filter.called
 
 
-class TestNonKeyDelegateField(object):
+class TestNonKeyDelegateField:
     "Test for NonKeyDelegateField class."
     @pytest.fixture
     def callback(self):
@@ -237,7 +237,7 @@ class TestNonKeyDelegateField(object):
         assert target.is_nonkey
 
 
-class TestNonKeyListDelegateField(object):
+class TestNonKeyListDelegateField:
     "Test for NonKeyListDelegateField class."
     @pytest.fixture
     def callback(self):
@@ -258,7 +258,7 @@ class TestNonKeyListDelegateField(object):
         assert target.is_nonkey
 
 
-class TestNonKeyListDelegateFieldFilter(object):
+class TestNonKeyListDelegateFieldFilter:
     "NonKeyListDelegateField.filter"
     @pytest.fixture
     def filter(self):
@@ -275,7 +275,7 @@ class TestNonKeyListDelegateFieldFilter(object):
         assert filter.called
 
 
-class TestNonKeyListDelegateFieldAfterFilter(object):
+class TestNonKeyListDelegateFieldAfterFilter:
     "NonKeyListDelegateField.after_filter"
     @pytest.fixture
     def after_filter(self):
