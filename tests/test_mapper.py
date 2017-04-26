@@ -3,6 +3,7 @@ import pytest
 from .testing import DummyObject, DummyCallback
 
 from bpmappers import fields
+from bpmappers.utils import sort_dict_with_keys
 
 
 class TestObjectToDictMapping:
@@ -426,7 +427,8 @@ class TestMapperOrderMethod:
 
         class TestOrderedA(base):
             def order(self, parsed):
-                parsed.keyOrder = ['spam', 'bacon', 'knights']
+                return sort_dict_with_keys(
+                    parsed, ['spam', 'bacon', 'knights'])
 
         return TestOrderedA
 
@@ -435,7 +437,8 @@ class TestMapperOrderMethod:
 
         class TestOrderedB(base):
             def order(self, parsed):
-                parsed.keyOrder = ['bacon', 'knights', 'spam']
+                return sort_dict_with_keys(
+                    parsed, ['bacon', 'knights', 'spam'])
 
         return TestOrderedB
 

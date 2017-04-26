@@ -1,8 +1,9 @@
 from copy import copy
+from collections import OrderedDict
 
 import six
 
-from bpmappers.utils import MultiValueDict, SortedDict
+from bpmappers.utils import MultiValueDict, sort_dict_with_keys
 from bpmappers.fields import Field, BaseField
 from bpmappers.exceptions import DataError
 
@@ -108,7 +109,7 @@ class Mapper(six.with_metaclass(BaseMapper)):
         return value
 
     def as_dict(self):
-        parsed = SortedDict()
+        parsed = OrderedDict()
         for k in self._meta.fields:
             # _meta.fields is MultiValueDict
             for name, field in self._meta.fields.getlist(k):
@@ -154,15 +155,11 @@ class Mapper(six.with_metaclass(BaseMapper)):
                         parsed.update(value)
                     else:
                         parsed[self.key_name(name, value, field)] = value
-        self.order(parsed)
-        return parsed
+        ordered = self.order(parsed)
+        return ordered
 
     def order(self, parsed):
-        def _key_func(k):
-            if k in self._meta.field_names:
-                return self._meta.field_names.index(k)
-            return -1
-        parsed.keyOrder = sorted(parsed.keyOrder, key=_key_func)
+        return sort_dict_with_keys(parsed, self._meta.field_names)
 
     def key_name(self, name, value, field):
         """
