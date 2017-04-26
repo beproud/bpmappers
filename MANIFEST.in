@@ -1,2 +1,3 @@
-include LICENSE.txt
+include *.rst *.ini LICENSE
 recursive-include docs *
+recursive-include tests *.py
