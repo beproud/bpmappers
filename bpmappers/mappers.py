@@ -1,16 +1,16 @@
 from copy import copy
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import six
 
-from bpmappers.utils import MultiValueDict, sort_dict_with_keys
+from bpmappers.utils import sort_dict_with_keys
 from bpmappers.fields import Field, BaseField
 from bpmappers.exceptions import DataError
 
 
 class Options(object):
     def __init__(self, *args, **kwargs):
-        self.fields = MultiValueDict()
+        self.fields = defaultdict(list)
         # Use this list to checking for existing name.
         self.field_names = []
 
@@ -20,19 +20,18 @@ class Options(object):
             field.key = name
         if name in self.field_names:
             # if the field is already registered, remove it.
-            lst = self.fields.getlist(field.key)
-            self.fields.setlist(field.key, [tp for tp in lst if tp[0] != name])
+            lst = self.fields[field.key]
+            self.fields[field.key] = [tp for tp in lst if tp[0] != name]
             for key in list(self.fields.keys()):
-                lst = self.fields.getlist(key)
+                lst = self.fields[key]
                 updated_lst = [tp for tp in lst if tp[0] != name]
                 if updated_lst:
-                    self.fields.setlist(
-                        key, [tp for tp in lst if tp[0] != name])
+                    self.fields[key] = [tp for tp in lst if tp[0] != name]
                 else:
                     del self.fields[key]
         else:
             self.field_names.append(name)
-        self.fields.appendlist(field.key, (name, field))
+        self.fields[field.key].append((name, field))
 
     def copy(self):
         opt = Options()
@@ -61,12 +60,11 @@ class BaseMapper(type):
         # Merge bases
         for base_opt in base_opts:
             for key in base_opt.fields.keys():
-                lst = base_opt.fields.getlist(key)
+                lst = base_opt.fields[key]
                 for _name, field in lst:
                     opt.add_field(_name, field)
         for k, v in attrs.items():
             if isinstance(v, BaseField):
-                # fields is MultiValueDict
                 opt.add_field(k, v)
         attrs['_meta'] = opt
         return type.__new__(cls, name, bases, attrs)
@@ -112,7 +110,7 @@ class Mapper(six.with_metaclass(BaseMapper)):
         parsed = OrderedDict()
         for k in self._meta.fields:
             # _meta.fields is MultiValueDict
-            for name, field in self._meta.fields.getlist(k):
+            for name, field in self._meta.fields[k]:
                 if field.is_nonkey:
                     v = None
                 elif isinstance(self.data, list):
