@@ -253,7 +253,7 @@ Mapper.after_filter_FOO
 Mapper.attach_FOO
 -----------------
 
-マッピングの結果の辞書に値を追加する前に実行されます。値を追加しない場合や、値の追加位置を変更する場合などに使用できます。
+マッピングの結果の辞書に値を追加する代わりに実行されます。値を追加しない場合や、値の追加位置を変更する場合などに使用できます。
 
 .. doctest::
 
@@ -267,11 +267,11 @@ Mapper.attach_FOO
    ...     x = RawField("x")
    ...     y = RawField("y")
    ...
-   ...     def attach_x(self, parsed, x):
-   ...         parsed[x] = (x, x*x, x*x*x, x*x*x*x)
+   ...     def attach_x(self, parsed, v):
+   ...         parsed[v] = (v, v*v, v*v*v, v*v*v*v)
    ...
-   ...     def attach_y(self, parsed, y):
-   ...         parsed[y] = "y is %s" % y
+   ...     def attach_y(self, parsed, v):
+   ...         parsed[v] = "y is %s" % v
    ... 
    >>> mapper = PointMapper(Point(10, 20))
    >>> print mapper.as_dict()
