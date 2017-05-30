@@ -20,7 +20,7 @@ pip を使ってインストールします。
 
 Personクラスのインスタンスを辞書に変換する例です:
 
-.. doctest::
+.. code-block:: pycon
 
    >>> class Person:
    ...     def __init__(self, name, age):

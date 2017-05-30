@@ -20,7 +20,7 @@ Usage
 
 An example of mapping an instance of the Person class to a dictionary:
 
-.. doctest::
+.. code-block:: pycon
 
    >>> class Person:
    ...     def __init__(self, name, age):
