@@ -6,9 +6,11 @@ Change History
 ===
 
 - Rewrote documentation.
+- Change testing framework to pytest.
 - Removed support old versions of Python <2.7, <3.4.
 - Removed support old versions of Django <1.8.
 - Removed SortedDict, mapping result uses OrderedDict.
+- Removed MultiValueDict, replaced to defaultdict.
 
 0.8.2
 =====
