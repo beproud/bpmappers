@@ -38,7 +38,7 @@ Personクラスのインスタンスを辞書に変換する例です:
    ...     mapped_age = RawField('age')
    ...
    >>> PersonMapper(p).as_dict()
-   {'mapped_age': 25, 'mapped_name': 'Spam'}
+   OrderedDict([('mapped_name', 'Spam'), ('mapped_age', 25)])
 
 動作要件
 ========

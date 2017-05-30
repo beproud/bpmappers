@@ -1,81 +1,44 @@
-.. _usage:
-
-======
-使い方
-======
-
-マッピング定義
+==============
+基本的な使い方
 ==============
 
-bpmappers を使ったマッピング定義の基本的な形は次のようになります。
+マッピングクラスを定義する
+==========================
+
+bpmappersを使ってマッピングするためには、まずマッピングクラスを定義します。
+
+マッピングクラスの例を示します:
 
 .. code-block:: python
 
    from bpmappers import Mapper, RawField
-   class MyMapper(Mapper):
-       mapping_to = RawField('mapping_from')
+   class SpamMapper(Mapper):
+       "マッピングクラス"
+       dest_key = RawField('src_key')
 
-``bpmappers.Mapper`` クラスを継承したクラスを定義します。
-各フィールドに対応するマッピングをクラス属性に ``RawField`` で定義します。
-``mapping_to`` はマッピング後のフィールド名、 ``mapping_from`` はマッピング対象のフィールド名です。
-``mapping_to`` と ``mapping_from`` が同じになる場合、 ``mapping_from`` を省略できます。
+マッピングクラスは、 ``bpmappers.Mapper`` を継承して定義します。
+``dest_key`` は、マッピング結果の辞書のキー名です。
+``src_key`` は、マッピングソースのオブジェクトの属性名、もしくは辞書のキー名です。
+マッピングソースから指定した属性名(キー)で取得した値をそのままマッピング結果の値とする場合は ``RawField`` フィールドクラスを使います。
 
-シンプルなマッピング
-====================
+マッピングクラスを使う
+======================
 
-シンプルなオブジェクトのマッピング例を以下に示します。
+定義したマッピングクラスは、次のように使います:
 
-.. doctest::
+.. code-block:: python
 
-   >>> from bpmappers import Mapper, RawField
-   >>> class Person(object):
-   ...     def __init__(self, name, value):
-   ...         self.name = name
-   ...         self.value = value
-   ...
-   >>> class PersonMapper(Mapper):
-   ...     username = RawField('name')
-   ...     num = RawField('value')
-   ...
-   >>> obj = Person('wozozo', 123)
-   >>> mapper = PersonMapper(obj)
-   >>> print mapper.as_dict()
-   {'username': 'wozozo', 'num': 123}
+   src_data = {'src_key': 'spam'}  # マッピングソース
+   result = SpamMapper(src_data).as_dict()
+   # resultは {'dest_key': 'spam'} となる
 
-この例では、Personクラスのオブジェクトの要素を辞書にマッピングしています。
-出力される辞書では、 ``Person.name`` の値が ``username`` キーの値に、 ``Person.value`` の値が、 ``num`` キーの値にそれぞれマッピングされています。
+マッピングクラスのコンストラクタに、マッピングソースとしてsrc_data変数に代入された辞書を渡しています。
+``as_dict()`` メソッドを呼ぶとマッピング処理が実行され、マッピング結果の辞書が返されます。
 
-Djangoモデルからマッパークラスを作成する
-========================================
+入れ子構造のオブジェクトをマッピングする(別のマッピングクラスに委譲する)
+========================================================================
 
-Djangoのモデルをマッピングする場合、ヘルパーを使ってマッピングを簡単に定義することができます。
-``bpmappers.djangomodel.ModelMapper`` を使用した例を示します。
-
-.. code-block:: pycon
-
-   >>> from django.db import models
-   >>> from bpmappers.djangomodel import ModelMapper
-   >>> class Person(models.Model):
-   ...    name = models.CharField(max_length=10)
-   ...    val = models.IntegerField()
-   ...
-   >>> class PersonMapper(ModelMapper):
-   ...     class Meta:
-   ...         model = Person
-   ...
-   >>> obj = Person('wozozo', 123)
-   >>> mapper = PersonMapper(obj)
-   >>> print mapper.as_dict()
-   {'name': 'wozozo', 'val': 123}
-
-``bpmappers.djangomodel.ModelMapper`` を継承したクラスを定義し、ModelMapperを継承したクラスには ``Meta`` インナークラスを定義しています。
-``Meta.model`` にDjangoのモデルクラスを指定することで、モデルのフィールドから自動的にマッピング定義が生成されます。
-この例では、PersonモデルクラスからPersonMapperクラスを生成しています。
-
-別のマッパーへの委譲
-====================
-
-特定のフィールドのマッピングを別のマッパークラスに委譲するには、 ``DelegateField`` を使用します。
+親オブジェクトがプロパティで子オブジェクトを持つような、入れ子構造のオブジェクトをマッピングする場合、マッピングクラスのフィールドクラスに ``bpmappers.DelegateField`` を使います。
 
 .. doctest::
 
@@ -99,16 +62,16 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
    >>> p = Person('wozozo')
    >>> b = Book('python book', p)
    >>> mapper = BookMapper(b)
-   >>> print mapper.as_dict()
-   {'name': 'python book', 'author': {'name': 'wozozo'}}
+   >>> print(mapper.as_dict())
+   OrderedDict([('name', 'python book'), ('author', OrderedDict([('name', 'wozozo')]))])
 
 ``bpmappers.DelegateField`` には、引数としてMapperを継承したクラスを指定します。
-この例では、 ``BookMapper.author`` の値は、 ``PersonMapper`` を使ってマッピングを行うように定義されています。
+この例では、マッピングソースの ``Book.author`` は、 ``PersonMapper`` でマッピングされるように定義しています。
 
-リストのマッピング
-------------------
+入れ子構造のリストをマッピングする
+==================================
 
-リストなどのシーケンスのマッピングを委譲するには、 ``ListDelegateField`` を使用します。
+親子関係のオブジェクトで子がリストになっている場合、 ``bpmappers.ListDelegateField`` を使います。
 
 .. doctest::
 
@@ -130,8 +93,8 @@ Djangoのモデルをマッピングする場合、ヘルパーを使ってマ�
    >>> p2 = Person('moriyoshi')
    >>> t = Team('php', [p1, p2])
    >>> mapper = TeamMapper(t)
-   >>> print mapper.as_dict()
-   {'name': 'php', 'members': [{'name': 'wozozo'}, {'name': 'moriyoshi'}]}
+   >>> print(mapper.as_dict())
+   OrderedDict([('name', 'php'), ('members', [OrderedDict([('name', 'wozozo')]), OrderedDict([('name', 'moriyoshi')])])])
 
 ``bpmappers.ListDelegateField`` には、引数としてMapperを継承したクラスを指定します。
 この例では、 ``TeamMapper.members`` の値はリストとして展開されて、 ``PersonMapper`` を使ってマッピングを行うように定義されています。
@@ -158,12 +121,12 @@ DjangoのManyToManyFieldをマッピングする場合、ListDelegateFieldには
    ...     persons = ListDelegateField(PersonMapper, filter=lambda manager: manager.all())
    ...
    >>> person1 = Person.objects.create('wozozo', 123)
-   >>> person2 = Person.objects.create('feiz', 456))
+   >>> person2 = Person.objects.create('feiz', 456)
    >>> group = Group.objects.create('test')
    >>> group.persons.add(person1)
    >>> group.persons.add(person2)
    >>> mapper = GroupMapper(group)
-   >>> print mapper.as_dict()
+   >>> print(mapper.as_dict())
    {'name': 'test', [{'name': 'wozozo', 'val': 123}, {'name': 'feiz', 'val': 456}]}
 
 ドット区切りのフィールド指定による参照
@@ -178,7 +141,7 @@ DjangoのManyToManyFieldをマッピングする場合、ListDelegateFieldには
    ...     hoge = RawField('hoge.piyo.fuga')
    ...
    >>> HogeMapper({'hoge': {'piyo': {'fuga': 123}}}).as_dict()
-   {'hoge': 123}
+   OrderedDict([('hoge', 123)])
 
 .. note:: この機能はバージョン0.5で追加されました。
 
@@ -201,7 +164,7 @@ DjangoのManyToManyFieldをマッピングする場合、ListDelegateFieldには
    ...         return '%s-%s' % (self.data[0].name, self.data[1].name)
    ...
    >>> MultiDataSourceMapper([Person('foo'), Person('bar')]).as_dict()
-   {'pair': 'foo-bar'}
+   OrderedDict([('pair', 'foo-bar')])
 
 
 フックポイント
@@ -226,7 +189,7 @@ Mapper.filter_FOO
    ...
    >>> mapper = MyMapper()
    >>> mapper.as_dict()
-   {'value': 10}
+   OrderedDict([('value', 10)])
 
 Mapper.after_filter_FOO
 -----------------------
@@ -246,8 +209,8 @@ Mapper.after_filter_FOO
    ...         return val.capitalize()
    ... 
    >>> mapper = MyMapper()
-   >>> print mapper.as_dict()
-   {'value': 'Oyoyo'}
+   >>> print(mapper.as_dict())
+   OrderedDict([('value', 'Oyoyo')])
 
 
 Mapper.attach_FOO
@@ -274,8 +237,8 @@ Mapper.attach_FOO
    ...         parsed[v] = "y is %s" % v
    ... 
    >>> mapper = PointMapper(Point(10, 20))
-   >>> print mapper.as_dict()
-   {20: 'y is 20', 10: (10, 100, 1000, 10000)}
+   >>> print(mapper.as_dict())
+   OrderedDict([(10, (10, 100, 1000, 10000)), (20, 'y is 20')])
 
 Field.callback
 --------------
@@ -300,11 +263,11 @@ Field.callback
    ...         return v+v
    ... 
    >>> mapper = PersonInfoMapper(Person("bucho"))
-   >>> print mapper.as_dict()
-   {'info': 'name:bucho'}
+   >>> print(mapper.as_dict())
+   OrderedDict([('info', 'name:bucho')])
    >>> mapper = PersonInfoMapper2(Person("bucho"))
-   >>> print mapper.as_dict()
-   {'info': 'name:buchobucho'}
+   >>> print(mapper.as_dict())
+   OrderedDict([('info', 'name:buchobucho')])
 
 Field.after_callback
 --------------------
@@ -331,8 +294,8 @@ Field.after_callback
    ...     authors = ListDelegateField(AuthorMapper)
    ... 
    >>> book = Book("be clound", [Person("bucho"), Person("shacho")])
-   >>> print BookMapper(book).as_dict()
-   {'authors': [{'author': 'bucho'}, {'author': 'shacho'}], 'title': 'be clound'}
+   >>> print(BookMapper(book).as_dict())
+   OrderedDict([('title', 'be clound'), ('authors', [OrderedDict([('author', 'bucho')]), OrderedDict([('author', 'shacho')])])])
    >>> def get_vals(items):
    ...     """
    ...     辞書のリストから、値だけを取り出す関数
@@ -351,8 +314,8 @@ Field.after_callback
    ...     authors = ListDelegateField(AuthorMapper, after_callback=get_vals)
    ... 
    >>> book = Book("be clound", [Person("bucho"), Person("shacho")])
-   >>> print BookMapperExt(book).as_dict()
-   {'authors': ['bucho', 'shacho'], 'title': 'be clound'}
+   >>> print(BookMapperExt(book).as_dict())
+   OrderedDict([('title', 'be clound'), ('authors', ['bucho', 'shacho'])])
 
 
 .. note::
@@ -384,8 +347,8 @@ Field.after_callback
       ...         return "{ after_filter: %s }" % v
       ... 
       >>> mapper = PersonInfoMapper(Person("BP"))
-      >>> print mapper.as_dict()
-      {'info': '{ after_filter: [ after_cb: ( cb: < filter: BP > ) ] }'}       
+      >>> print(mapper.as_dict())
+      OrderedDict([('info', '{ after_filter: [ after_cb: ( cb: < filter: BP > ) ] }')])
 
 
 Mapper.key_name
@@ -402,4 +365,4 @@ Mapper.key_name
    ...         return 'namespace:%s' % name
    ...
    >>> NameSpaceMapper(dict(name='bucho')).as_dict()
-   {'namespace:name': 'bucho'}
+   OrderedDict([('namespace:name', 'bucho')])

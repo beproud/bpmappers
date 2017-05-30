@@ -38,7 +38,7 @@ An example of mapping an instance of the Person class to a dictionary:
    ...     mapped_age = RawField('age')
    ...
    >>> PersonMapper(p).as_dict()
-   {'mapped_age': 25, 'mapped_name': 'Spam'}
+   OrderedDict([('mapped_name', 'Spam'), ('mapped_age', 25)])
 
 Requirements
 ============

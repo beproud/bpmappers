@@ -14,6 +14,7 @@ bpmappers
    djangomodel
    reference/index
    ChangeLog
+   glossary
 
 索引
 ====

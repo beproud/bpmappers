@@ -14,7 +14,8 @@ def read_file(filename):
 setup(
     name='bpmappers',
     version='0.9dev',
-    description='A mapping tool from model to dictionary.',
+    description='bpmappers is a Python moudle that maps Python dictionary '
+    'values and object properties to different dictionary.',
     long_description=read_file('README.rst'),
     author='BeProud Inc.',
     author_email='tokibito@gmail.com',

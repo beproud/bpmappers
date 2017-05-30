@@ -9,20 +9,14 @@ Djangoフレームワークのモデルインスタンスをマッピングす�
 Djangoフレームワークのバージョン
 ================================
 
-``bpmappers.djangomodel`` は、Djangoフレームワークのバージョンが 1.0 から 1.8 に対応しています。
-
-1.0 以前のバージョンへの対応予定は、今のところありません。
-
-.. note::
-
-   DjangoフレームワークのPython3サポートは、Django 1.5 からで、Python 3.2 以降のみで動作します。そのため、 ``bpmappers.djangomodel`` モジュールのPython3サポートも Django 1.5 かつ Python 3.2 以降のみ対応となります。
+``bpmappers.djangomodel`` は、Djangoフレームワークのバージョン 1.8 以上に対応しています。
 
 ModelMapperの使用
 =================
 
 ModelMapperを使用するには、 ModelMapper を継承したクラスを定義します。
 
-次のようなモデルを定義したとします:
+Djangoで次のようなモデルを定義したとします:
 
 .. code-block:: python
 
@@ -35,7 +29,7 @@ ModelMapperを使用するには、 ModelMapper を継承したクラスを定�
        title = models.CharField(max_length=10)
        author = models.Foreignkey(Person)
 
-ModelMapper を使ってBookモデルを辞書にマッピングするための定義は次のようになります:
+ModelMapperを使ってBookモデルを辞書にマッピングするための定義は次のようになります:
 
 .. code-block:: python
 
@@ -46,7 +40,7 @@ ModelMapper を使ってBookモデルを辞書にマッピングするための�
        class Meta:
            model = Book
 
-ModelMapper を使わない場合は次のようになります:
+ModelMapperを使わない場合は次のようになります:
 
 .. code-block:: python
 
@@ -64,9 +58,9 @@ ModelMapper を使わない場合は次のようになります:
 仕組み
 ======
 
-ModelMapper は、Djangoモデルクラスの ``Model._meta.fields`` のモデルフィールドの定義を参照してマッピングフィールドを作成しています。
+ModelMapperは、Djangoモデルクラスのメタ情報(``Model._meta.fields``)を参照してマッピング定義を作成しています。
 
-モデルフィールドとマッピングフィールドの対応は次の通りです:
+Djangoのモデルフィールドとbpmppersのフィールドの対応は次の通りです:
 
 ========================  ==========================================
 Djangoのモデルフィールド  bpmappersのフィールド
