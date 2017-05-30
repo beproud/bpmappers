@@ -24,7 +24,7 @@ setup(
         'Environment :: Plugins',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
@@ -34,7 +34,7 @@ setup(
     ],
     packages=['bpmappers'],
     keywords=['model', 'mapper', 'django'],
-    license='BSD License',
+    license='MIT License',
     install_requires=['six'],
     extras_require={
         'django': ['Django'],
