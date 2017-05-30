@@ -9,6 +9,8 @@ from bpmappers.exceptions import DataError
 
 
 class Options(object):
+    """Meta data of Mapper.
+    """
     def __init__(self, *args, **kwargs):
         self.fields = defaultdict(list)
         # Use this list to checking for existing name.
@@ -44,6 +46,8 @@ class Options(object):
 
 
 class BaseMapper(type):
+    """Metaclass of Mapper.
+    """
     def __new__(cls, name, bases, attrs):
         # copy bases
         opt = None
@@ -71,9 +75,15 @@ class BaseMapper(type):
 
 
 class Mapper(six.with_metaclass(BaseMapper)):
+    """Basic Mapper class.
+    """
     default_options = {}
 
     def __init__(self, data=None, **options):
+        """
+        :data: Mapping source object.
+        :\*\*options: Optional values.
+        """
         self.data = data
         self.options = self.default_options.copy()
         self.options.update(options)
@@ -107,6 +117,9 @@ class Mapper(six.with_metaclass(BaseMapper)):
         return value
 
     def as_dict(self):
+        """
+        Return the OrderedDict it is mapping result.
+        """
         parsed = OrderedDict()
         for k in self._meta.fields:
             # _meta.fields is MultiValueDict
@@ -157,11 +170,14 @@ class Mapper(six.with_metaclass(BaseMapper)):
         return ordered
 
     def order(self, parsed):
+        """
+        This method **must** return the OrderedDict.
+        """
         return sort_dict_with_keys(parsed, self._meta.field_names)
 
     def key_name(self, name, value, field):
         """
-        hook point for key name convert.
+        Hook point for key name converting.
         """
         return name
 

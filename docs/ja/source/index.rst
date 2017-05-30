@@ -12,7 +12,7 @@ bpmappers
    usage
    flatten
    djangomodel
-   reference
+   reference/index
    develop
    changelist
 

@@ -30,6 +30,8 @@ class BaseField(object):
 
 
 class NonKeyField(BaseField):
+    """Result values are generated manually.
+    """
     def as_value(self, mapper, value=None):
         return value
 
@@ -39,6 +41,8 @@ class NonKeyField(BaseField):
 
 
 class StubField(NonKeyField):
+    """Result values are fixed value.
+    """
     def __init__(self, stub={}, *args, **kwargs):
         self.stub = stub
         super(StubField, self).__init__(*args, **kwargs)
@@ -48,6 +52,8 @@ class StubField(NonKeyField):
 
 
 class Field(BaseField):
+    """Basic class of Field.
+    """
     def __init__(self, key=None, callback=None, skip_callable=False,
                  *args, **kwargs):
         super(Field, self).__init__(callback, *args, **kwargs)
@@ -60,6 +66,8 @@ class Field(BaseField):
 
 
 class RawField(Field):
+    """Result values are obtained from mapping source without conversion.
+    """
     def as_value(self, mapper, value):
         return value
 

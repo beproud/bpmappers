@@ -19,7 +19,7 @@ class DjangoFileField(Field):
 
 DEFAULT_MAPPER_FIELD = RawField
 
-# Djangoのフィールドに対応したMapperField
+# Mapping Django model field to MaperField.
 DEFINED_MODEL_MAPPER_FIELDS = {
     models.AutoField: DEFAULT_MAPPER_FIELD,
     models.CharField: DEFAULT_MAPPER_FIELD,
@@ -121,13 +121,16 @@ class ModelMapperMetaclass(BaseMapper):
 
 class ModelMapper(six.with_metaclass(ModelMapperMetaclass, Mapper)):
     """
-    djangoモデルに対して使えるMapper
+    Mapper class for Django ORM.
+
+    This class generates mapping definition with using Django Model's Meta data.
     """
 
     def _getattr(self, obj, key):
         """
-        空のFKの要素にアクセスした場合の対処
+        Hooks attribute access.
         """
+        # If access the empty FK value, return None.
         try:
             return super(ModelMapper, self)._getattr(obj, key)
         except ObjectDoesNotExist:
