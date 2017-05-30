@@ -4,21 +4,21 @@ bpmappers
 
 |build-status| |pypi| |docs|
 
-bpmappers is a Python moudle that maps Python dictionary values and object properties to different dictionary.
+bpmappersは、Pythonの辞書の値やオブジェクトのプロパティを別の辞書へマッピングするPythonモジュールです。
 
-Install
-=======
+インストール
+============
 
-Install using pip.
+pip を使ってインストールします。
 
 ::
 
    $ pip install bpmappers
 
-Usage
-=====
+使い方
+======
 
-An example of mapping an instance of the Person class to a dictionary:
+Personクラスのインスタンスを辞書に変換する例です:
 
 .. doctest::
 
@@ -40,29 +40,29 @@ An example of mapping an instance of the Person class to a dictionary:
    >>> PersonMapper(p).as_dict()
    {'mapped_age': 25, 'mapped_name': 'Spam'}
 
-Requirements
-============
+動作要件
+========
 
-- Target Python version is 2.7, 3.4, 3.5, 3.6
-- Django>=1.8 (If use Django support)
+- Pythonのバージョン 2.7, 3.4, 3.5, 3.6
+- Django>=1.8 (Djangoサポートを使用する場合)
 
-License
-=======
+ライセンス
+==========
 
-This software is licensed under the MIT License.
+MITライセンス
 
-Develop
-=======
+開発
+====
 
-This project is hosted at Github: https://github.com/beproud/bpmappers
+このプロジェクトはGitHubでホストされています: https://github.com/beproud/bpmappers
 
-Author
-======
+作者
+====
 
 - BeProud, Inc
 
-Maintainer
-==========
+メンテナ
+========
 
 - Shinya Okano <tokibito@gmail.com>
 
