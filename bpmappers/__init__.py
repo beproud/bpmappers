@@ -13,4 +13,4 @@ __all__ = [
     'DataError', 'InvalidDelegateException',
 ]
 
-VERSION = (0, 9, 0, 'dev')
+VERSION = (0, 9, 0, None)

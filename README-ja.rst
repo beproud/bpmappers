@@ -76,6 +76,6 @@ https://bpmappers.readthedocs.io/en/latest/
 .. |build-status| image:: https://travis-ci.org/beproud/bpmappers.svg?branch=master
    :target: https://travis-ci.org/beproud/bpmappers
 .. |docs| image:: https://readthedocs.org/projects/bpmappers/badge/?version=latest
-   :target: https://readthedocs.org/projects/bpmappers/
+   :target: https://bpmappers.readthedocs.io/en/latest/
 .. |pypi| image:: https://badge.fury.io/py/bpmappers.svg
    :target: http://badge.fury.io/py/bpmappers
