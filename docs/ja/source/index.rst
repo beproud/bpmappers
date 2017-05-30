@@ -1,14 +1,14 @@
-======================
-bpmappers ドキュメント
-======================
+=========
+bpmappers
+=========
 
 コンテンツ:
 
 .. toctree::
    :maxdepth: 2
 
-   intro
-   install
+   overview
+   background_development
    usage
    flatten
    djangomodel
