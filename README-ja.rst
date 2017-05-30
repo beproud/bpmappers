@@ -51,6 +51,13 @@ Personクラスのインスタンスを辞書に変換する例です:
 
 MITライセンス
 
+ドキュメント
+============
+
+最新のドキュメントはReadTheDocsでホストされています。
+
+https://bpmappers.readthedocs.io/en/latest/
+
 開発
 ====
 

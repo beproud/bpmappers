@@ -51,6 +51,13 @@ License
 
 This software is licensed under the MIT License.
 
+Documentation
+=============
+
+The latest documentation is hosted at Read The Docs.
+
+https://bpmappers.readthedocs.io/en/latest/
+
 Develop
 =======
 
