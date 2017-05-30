@@ -10,6 +10,7 @@ bpmappers
    overview
    background_development
    usage
+   hookpoints
    flatten
    djangomodel
    reference/index
