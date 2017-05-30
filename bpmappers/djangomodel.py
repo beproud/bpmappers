@@ -123,7 +123,8 @@ class ModelMapper(six.with_metaclass(ModelMapperMetaclass, Mapper)):
     """
     Mapper class for Django ORM.
 
-    This class generates mapping definition with using Django Model's Meta data.
+    This class generates mapping definition with using Django Model's Meta
+     data.
     """
 
     def _getattr(self, obj, key):
