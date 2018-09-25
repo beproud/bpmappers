@@ -2,6 +2,13 @@
 Change History
 ==============
 
+1.0
+===
+
+- Support Python 3.7
+- Support Django 2.0, 2.1
+- Remove support old versions of Django <1.11.
+
 0.9
 ===
 
