@@ -376,7 +376,7 @@ class TestForeignKeyFieldModelMapper:
         from django.db import models
 
         class ParentModel(models.Model):
-            bacon = models.ForeignKey(child_model)
+            bacon = models.ForeignKey(child_model, on_delete=models.CASCADE)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
@@ -430,7 +430,8 @@ class TestForeignKeyFieldNullValue:
         from django.db import models
 
         class ParentModel(models.Model):
-            bacon = models.ForeignKey(child_model, null=True, blank=True)
+            bacon = models.ForeignKey(
+                child_model, null=True, blank=True, on_delete=models.CASCADE)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
@@ -468,7 +469,8 @@ class TestForeignKeySelfReference:
         from django.db import models
 
         class DummyModel(models.Model):
-            spam = models.ForeignKey("DummyModel", null=True, blank=True)
+            spam = models.ForeignKey(
+                "DummyModel", null=True, blank=True, on_delete=models.CASCADE)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)
@@ -515,7 +517,7 @@ class TestOneToOneFieldModelMapping:
         from django.db import models
 
         class ParentModel(models.Model):
-            bacon = models.OneToOneField(child_model)
+            bacon = models.OneToOneField(child_model, on_delete=models.CASCADE)
 
             class Meta:
                 app_label = testing_django.lower_class_name(self)

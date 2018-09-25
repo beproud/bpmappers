@@ -19,6 +19,6 @@ class M2M_Through_ChildModel(models.Model):
 
 
 class M2M_ThroughModel(models.Model):
-    child = models.ForeignKey('M2M_Through_ChildModel')
-    parent = models.ForeignKey('M2M_Through_ParentModel')
+    child = models.ForeignKey('M2M_Through_ChildModel', on_delete=models.CASCADE)
+    parent = models.ForeignKey('M2M_Through_ParentModel', on_delete=models.CASCADE)
     knight = models.CharField(max_length=30)

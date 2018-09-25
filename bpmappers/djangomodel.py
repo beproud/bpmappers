@@ -76,14 +76,14 @@ class ModelMapperMetaclass(BaseMapper):
                             and model_field.name in mapper_meta.exclude:
                         continue
                 # モデルのフィールドに対応したField追加
-                if model_field.rel:
+                if model_field.remote_field:
                     # 同じモデルを参照しようとした場合はスキップする
-                    if model == model_field.rel.to:
+                    if model == model_field.remote_field.model:
                         continue
                     if isinstance(model_field, models.ForeignKey):
                         # ForeignKey
                         related_model_mapper = create_model_mapper(
-                            model_field.rel.to,
+                            model_field.remote_field.model,
                             model_mapper_fields=mapper_fields)
                         opt.add_field(
                             model_field.name,
@@ -94,7 +94,7 @@ class ModelMapperMetaclass(BaseMapper):
                     elif isinstance(model_field, models.ManyToManyField):
                         # ManyToManyField
                         related_model_mapper = create_model_mapper(
-                            model_field.rel.to,
+                            model_field.remote_field.model,
                             model_mapper_fields=mapper_fields)
                         opt.add_field(
                             model_field.name,
