@@ -2,6 +2,11 @@
 Change History
 ==============
 
+1.0.1
+=====
+
+- Modify documentation config
+
 1.0
 ===
 
