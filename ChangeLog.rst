@@ -2,6 +2,12 @@
 Change History
 ==============
 
+1.1
+===
+
+- Add support Python 3.8
+- Add supports Django 2.2, 3.0
+
 1.0.1
 =====
 
