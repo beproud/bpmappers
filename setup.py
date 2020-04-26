@@ -13,7 +13,7 @@ def read_file(filename):
 
 setup(
     name='bpmappers',
-    version='1.0.1',
+    version='1.1',
     description='bpmappers is a Python moudle that maps Python dictionary '
     'values and object properties to different dictionary.',
     long_description=read_file('README.rst'),
