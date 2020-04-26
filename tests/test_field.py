@@ -23,18 +23,17 @@ class TestNonKeyField:
     def callback(self):
         return DummyCallback("Spam")
 
+    @pytest.fixture
     def target(self, callback):
         from bpmappers.fields import NonKeyField
         return NonKeyField(callback)
 
-    def test_get_value(self, callback):
-        target = self.target(callback)
+    def test_get_value(self, callback, target):
         value = target.get_value(None, None)
         assert callback.called
         assert value == callback.returns
 
-    def test_is_nonkey(self, callback):
-        target = self.target(callback)
+    def test_is_nonkey(self, target):
         assert target.is_nonkey
 
 
@@ -227,8 +226,7 @@ class TestNonKeyDelegateField:
         from bpmappers.fields import NonKeyDelegateField
         return NonKeyDelegateField(DummyMapper, callback=callback)
 
-    def test_get_value(self, callback):
-        target = self.target(callback)
+    def test_get_value(self, callback, target):
         value = target.get_value(DummyMapper(None), None)
         assert value == callback.returns
         assert callback.called
@@ -248,8 +246,7 @@ class TestNonKeyListDelegateField:
         from bpmappers.fields import NonKeyListDelegateField
         return NonKeyListDelegateField(DummyMapper, callback=callback)
 
-    def test_get_value(self, callback):
-        target = self.target(callback)
+    def test_get_value(self, callback, target):
         value = target.get_value(DummyMapper(None), None)
         assert value == [callback.returns]
         assert callback.called

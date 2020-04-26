@@ -82,7 +82,7 @@ class Mapper(six.with_metaclass(BaseMapper)):
     def __init__(self, data=None, **options):
         """
         :data: Mapping source object.
-        :\*\*options: Optional values.
+        :\\*\\*options: Optional values.
         """
         self.data = data
         self.options = self.default_options.copy()
