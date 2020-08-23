@@ -56,7 +56,7 @@ Documentation
 
 The latest documentation is hosted at Read The Docs.
 
-https://bpmappers.readthedocs.io/en/stable/
+https://bpmappers.readthedocs.io/ja/stable/
 
 Develop
 =======
@@ -76,6 +76,6 @@ Maintainer
 .. |build-status| image:: https://travis-ci.org/beproud/bpmappers.svg?branch=master
    :target: https://travis-ci.org/beproud/bpmappers
 .. |docs| image:: https://readthedocs.org/projects/bpmappers/badge/?version=stable
-   :target: https://bpmappers.readthedocs.io/en/stable/
+   :target: https://bpmappers.readthedocs.io/ja/stable/
 .. |pypi| image:: https://badge.fury.io/py/bpmappers.svg
    :target: http://badge.fury.io/py/bpmappers

@@ -56,7 +56,7 @@ MITライセンス
 
 最新のドキュメントはReadTheDocsでホストされています。
 
-https://bpmappers.readthedocs.io/en/latest/
+https://bpmappers.readthedocs.io/ja/latest/
 
 開発
 ====
@@ -76,6 +76,6 @@ https://bpmappers.readthedocs.io/en/latest/
 .. |build-status| image:: https://travis-ci.org/beproud/bpmappers.svg?branch=master
    :target: https://travis-ci.org/beproud/bpmappers
 .. |docs| image:: https://readthedocs.org/projects/bpmappers/badge/?version=latest
-   :target: https://bpmappers.readthedocs.io/en/latest/
+   :target: https://bpmappers.readthedocs.io/ja/latest/
 .. |pypi| image:: https://badge.fury.io/py/bpmappers.svg
    :target: http://badge.fury.io/py/bpmappers

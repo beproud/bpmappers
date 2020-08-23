@@ -19,7 +19,7 @@ setup(
     long_description=read_file('README.rst'),
     author='BeProud Inc.',
     author_email='tokibito@gmail.com',
-    url='https://bpmappers.readthedocs.io/en/stable/',
+    url='https://bpmappers.readthedocs.io/ja/stable/',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Plugins',
