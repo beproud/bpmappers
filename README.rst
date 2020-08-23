@@ -44,7 +44,7 @@ Requirements
 ============
 
 - Target Python version is 3.5, 3.6, 3.7, 3.8
-- Django 2.1, 2.2, 3.0 (When use Django support)
+- Django 2.1, 2.2, 3.0, 3.1 (When use Django support)
 
 License
 =======
