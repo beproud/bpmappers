@@ -733,7 +733,7 @@ class TestFileFieldModelMapper:
         result = mapper.as_dict()
         expected = {
             'id': 1,
-            'spam': "egg.txt",
+            'spam': "/egg.txt",
         }
         assert result == expected
 
@@ -772,7 +772,7 @@ class TestImageFieldModelMapper:
         result = mapper.as_dict()
         expected = {
             'id': 1,
-            'spam': "egg.jpg",
+            'spam': "/egg.jpg",
         }
         assert result == expected
 

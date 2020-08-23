@@ -13,7 +13,7 @@ def read_file(filename):
 
 setup(
     name='bpmappers',
-    version='1.1',
+    version='1.2',
     description='bpmappers is a Python moudle that maps Python dictionary '
     'values and object properties to different dictionary.',
     long_description=read_file('README.rst'),
@@ -27,8 +27,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
@@ -38,7 +36,6 @@ setup(
     packages=['bpmappers'],
     keywords=['model', 'mapper', 'django'],
     license='MIT License',
-    install_requires=['six'],
     extras_require={
         'django': ['Django'],
         'develop': [

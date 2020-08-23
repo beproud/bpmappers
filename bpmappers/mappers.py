@@ -1,8 +1,6 @@
 from copy import copy
 from collections import OrderedDict, defaultdict
 
-import six
-
 from bpmappers.utils import sort_dict_with_keys
 from bpmappers.fields import Field, BaseField
 from bpmappers.exceptions import DataError
@@ -74,7 +72,7 @@ class BaseMapper(type):
         return type.__new__(cls, name, bases, attrs)
 
 
-class Mapper(six.with_metaclass(BaseMapper)):
+class Mapper(metaclass=BaseMapper):
     """Basic Mapper class.
     """
     default_options = {}

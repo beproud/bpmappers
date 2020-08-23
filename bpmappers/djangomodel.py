@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import six
-
 from bpmappers.fields import Field, RawField, DelegateField, ListDelegateField
 from bpmappers.mappers import Options, BaseMapper, Mapper
 
@@ -119,7 +117,7 @@ class ModelMapperMetaclass(BaseMapper):
         return BaseMapper.__new__(cls, name, bases, attrs)
 
 
-class ModelMapper(six.with_metaclass(ModelMapperMetaclass, Mapper)):
+class ModelMapper(Mapper, metaclass=ModelMapperMetaclass):
     """
     Mapper class for Django ORM.
 

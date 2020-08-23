@@ -11,3 +11,4 @@ DATABASES = {
         'NAME': ':memory:',
     }
 }
+MEDIA_URL = '/'
