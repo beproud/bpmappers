@@ -43,8 +43,8 @@ An example of mapping an instance of the Person class to a dictionary:
 Requirements
 ============
 
-- Target Python version is 3.5, 3.6, 3.7, 3.8
-- Django 2.1, 2.2, 3.0, 3.1 (When use Django support)
+- Target Python version is 3.6, 3.7, 3.8, 3.9
+- Django 2.2, 3.0, 3.1 (When use Django support)
 
 License
 =======

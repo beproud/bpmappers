@@ -9,7 +9,7 @@ Djangoフレームワークのモデルインスタンスをマッピングす�
 Djangoフレームワークのバージョン
 ================================
 
-``bpmappers.djangomodel`` は、Djangoフレームワークのバージョン 1.8 以上に対応しています。
+READMEに記載されているDjangoのバージョンをサポートしています。
 
 ModelMapperの使用
 =================
@@ -27,7 +27,7 @@ Djangoで次のようなモデルを定義したとします:
 
    class Book(models.Model):
        title = models.CharField(max_length=10)
-       author = models.Foreignkey(Person)
+       author = models.ForeignKey(Person)
 
 ModelMapperを使ってBookモデルを辞書にマッピングするための定義は次のようになります:
 

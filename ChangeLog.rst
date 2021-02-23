@@ -2,10 +2,17 @@
 Change History
 ==============
 
+1.3
+===
+
+- Add support Python 3.9
+- Remove support Python 3.5
+- Remove support Django 2.1
+
 1.2
 ===
 
-- Add supoprt Django 3.1
+- Add support Django 3.1
 - Remove support Python 2.7, 3.4
 - Remove support Django 1.11, 2.0
 - Remove six dependency
