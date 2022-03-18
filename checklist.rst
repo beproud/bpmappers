@@ -28,9 +28,9 @@
 
 4. TestPyPIの表示を確認する
 5. もしTestPyPIでの表示が正しくない場合、下記の「備考」を参考にパッケージのバージョンを変更して再度アップロードする
-6. ローカル環境にて、pipでTestPyPIにアップロードしたパッケージがインストール可能であることを確認する
+6. ローカル環境にて、TestPyPIにアップロードしたパッケージがインストール可能であることを確認する
 
-   * ``pip install -i https://test.pypi.org/simple/ bpmappers``
+   * ``pip install -i https://test.pypi.org/simple/ bpmappers==1.3`` (確認したいバージョン番号に変更)
    * ``pip freeze | grep bpmappers``
 
 7. Githubで次バージョンのRelaseタグを作成して、Publish Releaseする
