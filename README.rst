@@ -61,7 +61,8 @@ https://bpmappers.readthedocs.io/ja/stable/
 Develop
 =======
 
-This project is hosted at Github: https://github.com/beproud/bpmappers
+- This project is hosted at GitHub: https://github.com/beproud/bpmappers
+- Release Procedure: https://github.com/beproud/bpmappers/blob/master/release_checklist.rst
 
 Author
 ======
