@@ -17,6 +17,7 @@ setup(
     description='bpmappers is a Python moudle that maps Python dictionary '
     'values and object properties to different dictionary.',
     long_description=read_file('README.rst'),
+    long_description_content_type="text/x-rst",
     author='BeProud Inc.',
     author_email='tokibito@gmail.com',
     url='https://bpmappers.readthedocs.io/ja/stable/',

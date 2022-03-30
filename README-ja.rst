@@ -61,7 +61,8 @@ https://bpmappers.readthedocs.io/ja/latest/
 開発
 ====
 
-このプロジェクトはGitHubでホストされています: https://github.com/beproud/bpmappers
+* このプロジェクトはGitHubでホストされています: https://github.com/beproud/bpmappers
+* リリース手順: https://github.com/beproud/bpmappers/blob/master/release_checklist.rst
 
 作者
 ====
@@ -73,8 +74,8 @@ https://bpmappers.readthedocs.io/ja/latest/
 
 - Shinya Okano <tokibito@gmail.com>
 
-.. |build-status| image:: https://travis-ci.org/beproud/bpmappers.svg?branch=master
-   :target: https://travis-ci.org/beproud/bpmappers
+.. |build-status| image:: https://github.com/beproud/bpmappers/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/beproud/bpmappers/actions
 .. |docs| image:: https://readthedocs.org/projects/bpmappers/badge/?version=latest
    :target: https://bpmappers.readthedocs.io/ja/latest/
 .. |pypi| image:: https://badge.fury.io/py/bpmappers.svg

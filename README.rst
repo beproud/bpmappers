@@ -61,7 +61,8 @@ https://bpmappers.readthedocs.io/ja/stable/
 Develop
 =======
 
-This project is hosted at Github: https://github.com/beproud/bpmappers
+- This project is hosted at GitHub: https://github.com/beproud/bpmappers
+- Release Procedure: https://github.com/beproud/bpmappers/blob/master/release_checklist.rst
 
 Author
 ======
@@ -73,8 +74,8 @@ Maintainer
 
 - Shinya Okano <tokibito@gmail.com>
 
-.. |build-status| image:: https://travis-ci.org/beproud/bpmappers.svg?branch=master
-   :target: https://travis-ci.org/beproud/bpmappers
+.. |build-status| image:: https://github.com/beproud/bpmappers/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/beproud/bpmappers/actions
 .. |docs| image:: https://readthedocs.org/projects/bpmappers/badge/?version=stable
    :target: https://bpmappers.readthedocs.io/ja/stable/
 .. |pypi| image:: https://badge.fury.io/py/bpmappers.svg
